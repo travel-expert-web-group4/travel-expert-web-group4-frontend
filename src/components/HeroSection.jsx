@@ -1,48 +1,64 @@
 import React from "react";
-import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../styles/HeroSection.css";
-
-// Import images correctly from `src/assets/images/`
-import destination1 from "../assets/images/destination1.jpg";
-import destination2 from "../assets/images/destination2.jpg";
-import destination3 from "../assets/images/destination3.jpg";
-import destination4 from "../assets/images/destination4.jpg";
+import { motion } from "framer-motion";
+import { Typewriter } from "react-simple-typewriter";
 
 const HeroSection = () => {
-    const images = [destination1, destination2, destination3, destination4];
+  return (
+    <section className="hero">
+      {/* Background Video */}
+      <video autoPlay loop muted className="hero-video">
+        <source src="/videos/hero-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
-    const settings = {
-        dots: true,
-        infinite: true,
-        speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        fade: true,
-        arrows: false,
-    };
+      <div className="hero-overlay"></div>
 
-    return (
-        <section className="hero-section">
-            <Slider {...settings}>
-                {images.map((image, index) => (
-                    <div key={index} className="hero-slide">
-                        <img
-                            src={image}
-                            alt={`Destination ${index + 1}`}
-                            className="hero-image"
-                        />
-                    </div>
-                ))}
-            </Slider>
-            <div className="hero-content">
-                <h1 className="hero-title">Discover Your Next Adventure</h1>
-            </div>
-        </section>
-    );
+      <motion.div 
+        className="hero-content"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+      >
+        {/* Typewriter Effect */}
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          <Typewriter 
+            words={["Explore the World with Travel Experts", "Discover New Adventures", "Your Next Journey Starts Here"]}
+            loop={true}
+            cursor
+            cursorStyle="_"
+            typeSpeed={60}
+            deleteSpeed={40}
+            delaySpeed={2000}
+          />
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.6 }}
+        >
+          Find the best vacation packages tailored for you.
+        </motion.p>
+
+        {/* Keeping only the 'Get Started' button */}
+        <motion.div
+          className="hero-buttons"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.9 }}
+        >
+          <button className="hero-btn primary">Get Started</button>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
 };
 
 export default HeroSection;

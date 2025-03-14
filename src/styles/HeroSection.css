@@ -1,63 +1,104 @@
-.hero-section {
-    position: relative;
-    width: 100%;
+
+
+  .hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     height: 100vh;
+    position: relative;
     overflow: hidden;
-    background-image: url('../assets/images/hero-image.jpg'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.hero-slide {
-    width: 100%;
-    height: 100vh;
-    min-height: 500px;
-    position: relative;
-}
-
-.hero-image {
+    color: white;
+    padding: 20px;
+  }
+  
+  /* Background Video */
+  .hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.hero-content {
+    z-index: -1;
+  }
+  
+  
+  /* Dark overlay for text visibility */
+  .hero-overlay {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: white;
-    z-index: 2;
-}
-
-.hero-title {
-    font-size: 3rem;
-    font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Slider dots */
-.slick-dots {
-    position: absolute;
-    bottom: 20px;
+    top: 0;
+    left: 0;
     width: 100%;
-    text-align: center;
-}
-
-.slick-dots li button:before {
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Content */
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+  }
+  
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  
+  .hero p {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
+  
+  /* Buttons */
+  .hero-buttons {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .hero-btn {
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+  }
+  
+  .hero-btn.primary {
+    background: #ff5733;
     color: white;
-}
-
-.slick-dots li.slick-active button:before {
-    color: #ffc107;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 2rem;
+  }
+  
+  .hero-btn.primary:hover {
+    background: #e04e2a;
+    transform: scale(1.05);
+  }
+  
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 2rem;
     }
-}
+  
+    .hero p {
+      font-size: 1.2rem;
+    }
+  
+    .hero-buttons {
+      flex-direction: column;
+    }
+  
+    .hero-btn {
+      width: 100%;
+      max-width: 250px;
+    }
+  }
+  

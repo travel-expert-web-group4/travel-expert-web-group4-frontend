@@ -66,7 +66,7 @@
     .about-container {
         flex-direction: column;
         text-align: center;
-        gap: 20px; /* Adds some spacing between text and image */
+        gap: 20px; 
     }
 
     .about-text {
@@ -76,13 +76,13 @@
 
     .about-image img {
         max-width: 80%;
-        margin-top: 20px; /* Adds space between text and image */
+        margin-top: 20px; 
     }
 }
 
 @media (max-width: 768px) {
     .about-text {
-        max-width: 90%; /* Ensure text is readable on small screens */
+        max-width: 90%; 
     }
 
     .about-image img {
