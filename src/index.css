@@ -4,9 +4,9 @@ body {
   overflow-x: hidden;
 }
 
-/* 🔵 Navbar Fixes */
+
 .navbar {
-  position: fixed; /* ✅ Ensures navbar stays at the top */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -17,10 +17,9 @@ body {
   padding: 15px 30px;
 }
 
-/* 🔹 Navbar Links Fix */
 .nav-links {
   list-style: none;
-  display: flex; /* ✅ Ensures links appear in one row */
+  display: flex; 
   gap: 20px;
   padding: 0;
   margin: 0;
@@ -38,12 +37,12 @@ body {
 }
 
 .nav-links li a:hover {
-  color: #ffc107; /* Hover effect */
+  color: #ffc107; 
 }
 
-/* 🟣 Hero Section Fixes */
+
 .hero-section {
-  height: 100vh; /* ✅ Fullscreen */
+  height: 100vh; 
   width: 100%;
   display: flex;
   align-items: center;
@@ -52,5 +51,5 @@ body {
   text-align: center;
   background-size: cover;
   background-position: center;
-  padding: 120px 20px; /* ✅ Prevents navbar from covering content */
+  padding: 120px 20px; 
 }

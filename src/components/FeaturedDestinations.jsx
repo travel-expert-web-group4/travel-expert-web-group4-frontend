@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../styles/FeaturedDestinations.css";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa"; 
 
 // Import images explicitly
 import destination1 from "../assets/images/destination1.jpg";
@@ -11,6 +12,28 @@ import destination3 from "../assets/images/destination3.jpg";
 import destination4 from "../assets/images/destination4.jpg";
 import destination5 from "../assets/images/destination5.jpg";
 import destination6 from "../assets/images/destination6.jpg";
+
+const CustomPrevArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+        <FaArrowLeft
+            className={`${className} custom-arrow prev-arrow`}
+            style={{ ...style, display: "block" }}
+            onClick={onClick}
+        />
+    );
+};
+
+const CustomNextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+        <FaArrowRight
+            className={`${className} custom-arrow next-arrow`}
+            style={{ ...style, display: "block" }}
+            onClick={onClick}
+        />
+    );
+};
 
 const FeaturedDestinations = () => {
     const destinations = [
@@ -26,10 +49,13 @@ const FeaturedDestinations = () => {
         dots: true,
         infinite: true,
         speed: 500,
-        slidesToShow: 3, // Show 3 slides on large screens
+        slidesToShow: 3,
         slidesToScroll: 1,
         autoplay: true,
         autoplaySpeed: 3000,
+        arrows: true,
+        prevArrow: <CustomPrevArrow />,
+        nextArrow: <CustomNextArrow />,
         responsive: [
             { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1, dots: true } },
             { breakpoint: 768, settings: { slidesToShow: 1, slidesToScroll: 1 } }

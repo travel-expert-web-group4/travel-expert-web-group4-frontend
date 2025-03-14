@@ -1,7 +1,7 @@
 
 .navbar {
     background: linear-gradient(to right, #6A0572, #E94560);
-    height: 70px; /* Increased height for better visibility */
+    height: 70px; 
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,16 +21,16 @@
 }
 
 .logo {
-    height: 60px; /* Increased logo size */
+    height: 60px; 
     width: auto;
     margin-right: 15px;
 }
 
 .brand-text {
     color: white;
-    font-size: 1.5rem; /* Increased font size */
-    font-weight: bold; /* Made text bolder */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Added text shadow for better visibility */
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
 }
 
 .nav-links {
@@ -97,10 +97,10 @@
         align-items: center;
         gap: 15px;
         padding: 10px 0;
-        display: none; /* Hide menu initially */
+        display: none; 
     }
 
     .nav-links.open {
-        display: flex; /* Show menu when toggled */
+        display: flex; 
     }
 }
