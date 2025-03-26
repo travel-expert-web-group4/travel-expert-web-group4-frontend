@@ -1,0 +1,309 @@
+.packages-container {
+  padding: 2rem;
+  padding-top: 4rem;
+  font-family: 'Segoe UI', sans-serif;
+  max-width: 1300px;
+  margin: auto;
+  background-color: #fff;
+}
+
+/* ======================
+   Filter Controls Styling
+======================= */
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.filter-controls input,
+.filter-controls select {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 220px;
+}
+
+.filter-controls input:focus,
+.filter-controls select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Reset Button */
+.reset-btn {
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Empty State */
+.empty-message {
+  margin-top: 2rem;
+  font-weight: bold;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* ======================
+   Package Card Styling
+======================= */
+.package-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  justify-items: center;
+}
+
+.package-card {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  background-color: #fff;
+  text-align: center;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.package-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.package-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.package-card h3 {
+  margin: 0.5rem 0;
+  font-size: 1.2rem;
+  color: #004aad;
+}
+
+.package-card p {
+  font-size: 0.95rem;
+  margin: 0.3rem 0;
+}
+
+.package-card .rating {
+  font-weight: bold;
+  color: #ffa500;
+  font-size: 0.95rem;
+}
+
+.rating {
+  color: #f5a623;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.package-card button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.package-card button:hover {
+  background-color: #0056b3;
+}
+
+/* Pagination */
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination button {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  margin: 0 5px;
+  padding: 0.5rem 0.75rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button.active {
+  background-color: #004aad;
+  color: white;
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: flex-end;
+}
+
+.view-toggle button {
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  padding: 0.4rem 1rem;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.view-toggle button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* ============ LIST VIEW ============ */
+.package-list.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.package-card.list {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: left;
+  padding: 1.5rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.package-card.list img {
+  width: 200px;
+  height: 140px;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+/* Featured Label */
+.featured-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: gold;
+  color: black;
+  font-weight: bold;
+  font-size: 0.8rem;
+  padding: 5px 8px;
+  border-radius: 5px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.flip-card {
+  background-color: transparent;
+  width: 100%;
+  height: 320px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 1rem;
+}
+
+.flip-card-front {
+  background-color: #fff;
+}
+
+.flip-card-back {
+  background-color: #004aad;
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.flip-card-back p {
+  margin: 0.5rem 0;
+}
+
+
+/* ======================
+   Card Entry Animation
+======================= */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.package-card {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0; /* Start hidden, revealed by animation */
+}
+
+
+/* Responsive Tweaks */
+@media (max-width: 500px) {
+  .pagination button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .filter-controls input,
+  .filter-controls select {
+    width: 100%;
+  }
+
+}

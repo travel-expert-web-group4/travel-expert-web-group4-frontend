@@ -1,0 +1,23 @@
+[
+    {
+      "agencyId": 1,
+      "agncyAddress": "123 Main St",
+      "agncyCity": "Calgary",
+      "agncyProv": "AB",
+      "agncyPostal": "T2N 1N4",
+      "agncyCountry": "Canada",
+      "agncyPhone": "403-123-4567",
+      "agncyFax": "403-123-9876"
+    },
+    {
+      "agencyId": 2,
+      "agncyAddress": "789 Bay St",
+      "agncyCity": "Toronto",
+      "agncyProv": "ON",
+      "agncyPostal": "M5G 1N8",
+      "agncyCountry": "Canada",
+      "agncyPhone": "416-555-1122",
+      "agncyFax": "416-555-3344"
+    }
+  ]
+  

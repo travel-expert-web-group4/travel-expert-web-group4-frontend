@@ -1,0 +1,73 @@
+.booking-confirmation {
+    padding: 2rem;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 4rem;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  }
+  
+  .booking-confirmation h2 {
+    font-size: 1.8rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+  }
+  
+  .booking-confirmation p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .booking-confirmation hr {
+    margin: 1.5rem 0;
+    border: none;
+    border-top: 1px solid #ccc;
+  }
+  
+  .booking-confirmation .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .booking-confirmation button {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .booking-confirmation button:nth-child(1) {
+    background-color: #0077cc;
+    color: #fff;
+  }
+  
+  .booking-confirmation button:nth-child(1):hover {
+    background-color: #005fa3;
+  }
+  
+  .booking-confirmation button:nth-child(2) {
+    background-color: #6c63ff;
+    color: #fff;
+  }
+  
+  .booking-confirmation button:nth-child(2):hover {
+    background-color: #5149cc;
+  }
+  
+  .booking-confirmation button:nth-child(3) {
+    background-color: #ffc107;
+    color: #333;
+  }
+  
+  .booking-confirmation button:nth-child(3):hover {
+    background-color: #e0a800;
+  }
+  

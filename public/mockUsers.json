@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "email": "jane.bronze@example.com",
+    "password": "bronze123",
+    "fullName": "Jane Bronze",
+    "role": "frequent-bronze",
+    "points": 6000,
+    "profileImage": "",
+    "isAgent": false
+  },
+  {
+    "id": 2,
+    "email": "john.platinum@example.com",
+    "password": "platinum123",
+    "fullName": "John Platinum",
+    "role": "frequent-platinum",
+    "points": 22000,
+    "profileImage": "",
+    "isAgent": false
+  },
+  {
+    "id": 3,
+    "email": "guest.user@example.com",
+    "password": "guest123",
+    "fullName": "Guest User",
+    "role": "guest",
+    "points": 0,
+    "profileImage": "",
+    "isAgent": false
+  },
+  {
+    "id": 4,
+    "email": "alex.agent@example.com",
+    "password": "agent123",
+    "fullName": "Alex Agent",
+    "role": "agent",
+    "points": 15000,
+    "profileImage": "",
+    "isAgent": true
+  }
+]

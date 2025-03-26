@@ -1,0 +1,59 @@
+.booking-container {
+    padding: 2rem;
+    max-width: 600px;
+    margin: auto;
+    font-family: 'Segoe UI', sans-serif;
+    background: #fff;
+  }
+  
+  .booking-container h2 {
+    margin-bottom: 1rem;
+    margin-top: 4rem;
+    color: #004aad;
+  }
+  
+  .booking-container p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .booking-container form {
+    margin-top: 1.5rem;
+  }
+  
+  .booking-container input,
+  .booking-container select {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .booking-container button {
+    padding: 0.7rem 1.5rem;
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+  }
+  
+  .booking-container button:hover {
+    background-color: #005fa3;
+  }
+  
+  .back-btn {
+    margin-top: 1rem;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    margin-left: 10rem;
+  }
+  
