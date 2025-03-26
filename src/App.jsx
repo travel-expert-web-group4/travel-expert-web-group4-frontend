@@ -1,5 +1,5 @@
 import React from "react";
-import AppRoutes from "./routes.jsx";
+import AppRoutes from "./routes";
 import Navbar from "./components/Navbar.jsx";
 import HeroSection from "./components/HeroSection.jsx";
 import AboutUs from "./components/AboutUs.jsx";

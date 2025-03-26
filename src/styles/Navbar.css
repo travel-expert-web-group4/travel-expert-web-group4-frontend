@@ -1,6 +1,7 @@
 
 .navbar {
-    background: linear-gradient(to right, #6A0572, #E94560);
+    /* background: linear-gradient(to right, #6A0572, #E94560); */
+    background: linear-gradient(to right, #007bfe, #00429e);
     height: 70px; 
     display: flex;
     justify-content: space-between;
@@ -103,4 +104,45 @@
     .nav-links.open {
         display: flex; 
     }
+    .nav-extras {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+      }
+      
+      .wallet-display {
+        font-weight: bold;
+        color: #004aad;
+        white-space: nowrap;
+      }
+
+      .user-info {
+        font-weight: bold;
+        color: #004aad;
+        padding: 0.5rem;
+      }
+      
+      .logout-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      
+      .logout-btn:hover {
+        background-color: #b02a37;
+      }
+      .user-role {
+        font-size: 0.8rem;
+        color: #666;
+        margin-left: 0.3rem;
+      }
+      
+      
+      
 }

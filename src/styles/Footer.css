@@ -1,6 +1,7 @@
 
 .footer {
-    background: linear-gradient(to right, #6A0572, #E94560);
+    /* background: linear-gradient(to right, #6A0572, #E94560); */
+    background: linear-gradient(to right, #007bfe, #00429e);
     color: white;
     padding: 20px 10px 10px;
     font-family: Arial, sans-serif;

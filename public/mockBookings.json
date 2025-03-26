@@ -1,0 +1,39 @@
+[
+    {
+      "bookingNo": "BKG-10442",
+      "name": "Tropical Paradise",
+      "destination": "Bahamas",
+      "tripStart": "2025-07-01",
+      "tripEnd": "2025-07-10",
+      "travelerCount": 2,
+      "tripTypeId": "L",
+      "basePrice": 1500,
+      "agencyCommission": 200,
+      "savedAt": "2025-06-01T10:15:00Z"
+    },
+    {
+      "bookingNo": "BKG-20412",
+      "name": "Mountain Escape",
+      "destination": "Swiss Alps",
+      "tripStart": "2025-08-15",
+      "tripEnd": "2025-08-22",
+      "travelerCount": 1,
+      "tripTypeId": "B",
+      "basePrice": 2200,
+      "agencyCommission": 250,
+      "savedAt": "2025-07-10T15:30:00Z"
+    },
+    {
+      "bookingNo": "BKG-30555",
+      "name": "Safari Adventure",
+      "destination": "Kenya",
+      "tripStart": "2025-09-05",
+      "tripEnd": "2025-09-14",
+      "travelerCount": 3,
+      "tripTypeId": "G",
+      "basePrice": 1800,
+      "agencyCommission": 220,
+      "savedAt": "2025-07-20T08:45:00Z"
+    }
+  ]
+  
