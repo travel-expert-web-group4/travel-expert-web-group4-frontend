@@ -5,14 +5,14 @@ import logo from "../assets/images/logo.png";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
-  const { currentUser, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navRef = useRef(null);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  // Close on outside click
+  // Close the mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
@@ -37,32 +37,25 @@ const Navbar = () => {
         <li><Link to="/packages">Packages</Link></li>
         <li><Link to="/contact">Contact Us</Link></li>
 
-        {currentUser && (
+        {user ? (
           <>
+            {user.role === "customer" && <li><Link to="/profile">My Profile</Link></li>}
             <li><Link to="/wallet">Wallet</Link></li>
             <li><Link to="/my-bookings">My Bookings</Link></li>
             <li><Link to="/dashboard">Dashboard</Link></li>
+            {user.role === "agent" && <li><Link to="/agent-tools">Agent Tools</Link></li>}
 
-            {currentUser.role === "agent" && (
-              <li><Link to="/agent-tools">Agent Tools</Link></li>
-            )}
-          </>
-        )}
-
-        {!currentUser ? (
-          <>
-            <li><Link to="/login">Sign In</Link></li>
-            <li><Link to="/register">Register</Link></li>
-          </>
-        ) : (
-          <>
             <li className="user-info">
-              👋 {currentUser.fullName}
-              <span className="user-role">({currentUser.role})</span>
+              👋 {user.fullName} <span className="user-role">({user.role})</span>
             </li>
             <li>
               <button onClick={logout} className="logout-btn">Logout</button>
             </li>
+          </>
+        ) : (
+          <>
+            <li><Link to="/login">Sign In</Link></li>
+            <li><Link to="/register">Register</Link></li>
           </>
         )}
       </ul>

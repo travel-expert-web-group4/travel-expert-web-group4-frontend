@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 
 const Packages = () => {
   const [packages, setPackages] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [destinationFilter, setDestinationFilter] = useState("");
@@ -12,16 +15,43 @@ const Packages = () => {
   const [endDateFilter, setEndDateFilter] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
+  const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
+
   const packagesPerPage = 6;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/mockPackages.json')
-      .then(res => res.json())
-      .then(data => setPackages(data))
-      .catch(err => console.error("Failed to fetch packages", err));
+    setLoading(true);
+    setError(null);
+
+    fetch('http://localhost:8080/api/package/list')
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to load packages");
+        return res.json();
+      })
+      .then(data => {
+        const mappedPackages = data.map(pkg => ({
+          packageId: pkg.id,
+          name: pkg.pkgname,
+          startDate: pkg.pkgstartdate,
+          endDate: pkg.pkgenddate,
+          description: pkg.pkgdesc,
+          basePrice: pkg.pkgbaseprice,
+          imageUrl: pkg.imageUrl,
+          destination: pkg.destination || "Unknown",
+          rating: pkg.rating || null,
+          reviews: pkg.reviews || [],
+          featured: false
+        }));
+        setPackages(mappedPackages);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch packages", err);
+        setError("Something went wrong while loading packages.");
+        setLoading(false);
+      });
   }, []);
 
   const resetFilters = () => {
@@ -109,22 +139,31 @@ const Packages = () => {
 
       {/* Package List */}
       <div className={`package-list ${viewMode}`}>
-        {currentPackages.length > 0 ? currentPackages.map(pkg => (
-          <div key={pkg.packageId} className={`package-card ${viewMode} ${pkg.featured ? "featured" : ""}`}>
-            {pkg.featured && <div className="featured-badge">🌟 Featured</div>}
-            <img src={pkg.imageUrl || "https://via.placeholder.com/300x200"} alt={`Package to ${pkg.destination || "somewhere"}`} />
-            <div>
-              <h3>{pkg.name}</h3>
-              <p><strong>Destination:</strong> {pkg.destination}</p>
-              <p>{pkg.description}</p>
-              <p className="rating">⭐ {pkg.rating || "N/A"}</p>
-              <p><strong>Price:</strong> ${pkg.basePrice}</p>
-              <button onClick={() => navigate(`/packages/${pkg.packageId}`, { state: pkg })}>
-                View Details
-              </button>
-            </div>
+        {loading ? (
+          <div className="spinner-wrapper">
+            <div className="spinner"></div>
+            <p>Loading packages...</p>
           </div>
-        )) : (
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : currentPackages.length > 0 ? (
+          currentPackages.map(pkg => (
+            <div key={pkg.packageId} className={`package-card ${viewMode} ${pkg.featured ? "featured" : ""}`}>
+              {pkg.featured && <div className="featured-badge">🌟 Featured</div>}
+              <img src={pkg.imageUrl || "https://via.placeholder.com/300x200"} alt={`Package to ${pkg.destination || "somewhere"}`} />
+              <div>
+                <h3>{pkg.name}</h3>
+                <p><strong>Destination:</strong> {pkg.destination}</p>
+                <p>{pkg.description}</p>
+                <p className="rating">⭐ {pkg.rating || "N/A"}</p>
+                <p><strong>Price:</strong> ${pkg.basePrice}</p>
+                <button onClick={() => navigate(`/packages/${pkg.packageId}`, { state: pkg })}>
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
           <p className="empty-message">No packages match your filters.</p>
         )}
       </div>

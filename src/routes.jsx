@@ -1,6 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import { Routes, Route } from 'react-router-dom';
 
 // Pages
 import Home from './pages/Home';
@@ -16,21 +15,14 @@ import BookingPage from './pages/BookingPage';
 import WalletPage from './pages/WalletPage';
 import DashboardPage from "./pages/DashboardPage";
 import ContactUs from "./pages/ContactUs";
-
+import CustomerProfile from "./pages/CustomerProfile";
+import AgentProfile from './pages/AgentProfile'; 
 
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatWidget from './components/ChatWidget';
 import ProtectedRoute from "./components/ProtectedRoute";
-
-
-
-
-
-
-
-
 
 function AppRoutes() {
   return (
@@ -42,36 +34,55 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/packages" element={<Packages />} />
         <Route path="/packages/:id" element={<PackageDetails />} />
+        <Route path="/packages/:id/book" element={<BookingPage />} />
         <Route path="/booking-confirmation" element={<BookingConfirmation />} />
         <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/my-bookings" element={<MyBookings />} />
         <Route path="/email-preview" element={<EmailPreview />} />
-        <Route path="/packages/:id/book" element={<BookingPage />} />
-        <Route path="/wallet" element={<WalletPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/contact" element={<ContactUs />} />
-        
-        // Example: Dashboard (any logged-in user)
-<Route
-  path="/dashboard"
-  element={
-    <ProtectedRoute>
-      <DashboardPage />
-    </ProtectedRoute>
-  }
-/>
 
-// Example: Wallet (only customers)
-<Route
-  path="/wallet"
-  element={
-    <ProtectedRoute allowedRoles={["guest", "frequent-bronze", "frequent-platinum", "agent"]}>
-      <WalletPage />
-    </ProtectedRoute>
-  }
-/>
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+        path="/agent-profile"
+         element={
+          <ProtectedRoute allowedRoles={['agent']}>
+          <AgentProfile />
+          </ProtectedRoute>
+          }
+       />
 
-        
+        <Route
+          path="/wallet"
+          element={
+            <ProtectedRoute allowedRoles={["guest", "frequent-bronze", "frequent-platinum", "agent"]}>
+              <WalletPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectedRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
+              <MyBookings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
+              <CustomerProfile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       <ChatWidget />
       <Footer />

@@ -38,5 +38,15 @@
     "points": 15000,
     "profileImage": "",
     "isAgent": true
+  },
+  {
+    "id": 104,
+    "email": "laetia@example.com",
+    "password": "test123",
+    "firstName": "Laetia",
+    "lastName": "Enison",
+    "role": "customer"
   }
+  
+  
 ]

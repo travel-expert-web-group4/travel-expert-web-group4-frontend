@@ -1,0 +1,64 @@
+/* AgentProfile.css */
+
+.agent-profile {
+    max-width: 900px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: #f4f7fa;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .agent-profile h2 {
+    text-align: center;
+    color: #004aad;
+    margin-bottom: 2rem;
+  }
+  
+  .agent-details-card {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  
+  .agent-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+  }
+  
+  .agent-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .agent-info p {
+    margin: 0.25rem 0;
+    font-size: 1rem;
+  }
+  
+  .agent-info strong {
+    color: #333;
+  }
+  
+  .agency-section {
+    margin-top: 2rem;
+    background-color: #eaf2ff;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid #004aad;
+    border-radius: 8px;
+  }
+  
+  .agency-section h4 {
+    margin-bottom: 1rem;
+    color: #004aad;
+  }
