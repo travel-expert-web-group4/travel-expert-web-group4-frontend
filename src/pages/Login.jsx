@@ -6,7 +6,8 @@ import { useAuth } from "../contexts/AuthContext";
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const redirectTo = location.state?.from?.pathname || "/dashboard";
+  const redirectTo = location.state?.from?.pathname || "/profile";
+
 
   const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -18,22 +19,34 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const res = await fetch("/mockUsers.json");
     const users = await res.json();
-
+  
     const user = users.find(
       (u) => u.email === formData.email && u.password === formData.password
     );
-
+  
     if (!user) {
       setError("Invalid email or password.");
       return;
     }
+    console.log("🔐 Logged in as:", user);
 
-    login(user);
-    navigate(redirectTo);
+  
+    // Set extended user info
+    login({
+      ...user,
+      fullName: `${user.firstName} ${user.lastName}`,
+      id: user.id
+    });
+  
+    // Wait a tick to let context update before redirecting
+    setTimeout(() => {
+      navigate(redirectTo, { replace: true });
+    }, 100);
   };
+  
 
   return (
     <div className="login-container">
