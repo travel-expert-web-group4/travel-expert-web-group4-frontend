@@ -14,6 +14,8 @@ const MyBookings = () => {
   //   const saved = JSON.parse(localStorage.getItem("myBookings")) || [];
   //   setBookings(saved);
   // }, []);
+
+
 // Simulate backend data from API
   useEffect(() => {
     fetch("/mockBookings.json")
@@ -136,6 +138,9 @@ const MyBookings = () => {
                   onClick={() => setSelectedBooking(b)}
                 >
                   View Details
+                </button>
+                <button>
+                  Pay It Now
                 </button>
               </div>
             </div>

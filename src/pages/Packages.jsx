@@ -37,6 +37,7 @@ const Packages = () => {
           startDate: pkg.pkgstartdate,
           endDate: pkg.pkgenddate,
           description: pkg.pkgdesc,
+          agencyCommission: pkg.pkgagencycommission,
           basePrice: pkg.pkgbaseprice,
           imageUrl: pkg.imageUrl,
           destination: pkg.destination || "Unknown",
