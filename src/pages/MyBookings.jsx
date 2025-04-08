@@ -5,7 +5,6 @@ import toast, { Toaster } from "react-hot-toast";
 import Spinner from "../components/Spinner";
 import logoBase64 from "../utils/logoBase64";
 
-
 const ITEMS_PER_PAGE = 4;
 
 const MyBookings = () => {
@@ -20,21 +19,14 @@ const MyBookings = () => {
 
   const customerId = 104;
 
-  // useEffect(() => {
-  //   const saved = JSON.parse(localStorage.getItem("myBookings")) || [];
-  //   setBookings(saved);
-  // }, []);
-
-
-// Simulate backend data from API
   useEffect(() => {
     fetch(`http://localhost:8080/api/booking/customer/${customerId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setBookings(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to fetch bookings:", err);
         toast.error("Failed to load bookings.");
         setLoading(false);
@@ -45,14 +37,17 @@ const MyBookings = () => {
     let updated = [...bookings];
 
     if (filterDestination) {
-      updated = updated.filter(b => b.destination.toLowerCase().includes(filterDestination.toLowerCase()));
+      updated = updated.filter((b) =>
+        b.destination.toLowerCase().includes(filterDestination.toLowerCase())
+      );
     }
 
     if (searchQuery) {
-      updated = updated.filter(b =>
-        b.bookingNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.destination.toLowerCase().includes(searchQuery.toLowerCase())
+      updated = updated.filter(
+        (b) =>
+          b.bookingNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          b.destination.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -61,84 +56,114 @@ const MyBookings = () => {
     } else if (sortOption === "destination") {
       updated.sort((a, b) => a.destination.localeCompare(b.destination));
     } else if (sortOption === "price") {
-      updated.sort((a, b) =>
-        (b.basePrice + b.agencyCommission) - (a.basePrice + a.agencyCommission)
+      updated.sort(
+        (a, b) =>
+          b.basePrice + b.agencyCommission - (a.basePrice + a.agencyCommission)
       );
     }
 
     setFilteredBookings(updated);
-    setCurrentPage(1); // Reset page on filter change
+    setCurrentPage(1);
   }, [bookings, sortOption, filterDestination, searchQuery]);
 
   const getTripTypeLabel = (code) => {
     switch (code) {
-      case "L": return "Leisure";
-      case "B": return "Business";
-      case "G": return "Group";
-      default: return "Unknown";
+      case "L":
+        return "Leisure";
+      case "B":
+        return "Business";
+      case "G":
+        return "Group";
+      default:
+        return "Unknown";
     }
   };
 
   const generateInvoice = (booking) => {
     const {
-      bookingNo, name, destination, tripStart, tripEnd, travelerCount,
-      tripTypeId, basePrice, agencyCommission
+      bookingNo,
+      name,
+      destination,
+      tripStart,
+      tripEnd,
+      travelerCount,
+      tripTypeId,
+      basePrice,
+      agencyCommission,
     } = booking;
-  
+
     const totalPrice = Number(basePrice) + Number(agencyCommission);
     const doc = new jsPDF();
-  
-    // Add logo image at top-right
-    doc.addImage(logoBase64, 'PNG', 150, 10, 40, 20);
-  
-    // Title and line
+
+    doc.addImage(logoBase64, "PNG", 150, 10, 40, 20);
+
     doc.setFontSize(18);
     doc.setTextColor(40, 40, 40);
     doc.text("Travel Experts - Booking Invoice", 20, 30);
     doc.setLineWidth(0.5);
     doc.line(20, 33, 190, 33);
-  
+
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     let y = 45;
-  
     const lineSpacing = 10;
-  
-    doc.text(`Booking No:`, 20, y); doc.text(bookingNo, 80, y); y += lineSpacing;
-    doc.text(`Package:`, 20, y); doc.text(name, 80, y); y += lineSpacing;
-    doc.text(`Destination:`, 20, y); doc.text(destination, 80, y); y += lineSpacing;
-    doc.text(`Trip Dates:`, 20, y); doc.text(`${new Date(tripStart).toLocaleDateString()} to ${new Date(tripEnd).toLocaleDateString()}`, 80, y); y += lineSpacing;
-    doc.text(`Travelers:`, 20, y); doc.text(String(travelerCount), 80, y); y += lineSpacing;
-    doc.text(`Trip Type:`, 20, y); doc.text(getTripTypeLabel(tripTypeId), 80, y); y += lineSpacing;
-    doc.text(`Base Price:`, 20, y); doc.text(`$${basePrice}`, 80, y); y += lineSpacing;
-    doc.text(`Agency Commission:`, 20, y); doc.text(`$${agencyCommission}`, 80, y); y += lineSpacing;
-  
-    // Divider
+
+    doc.text(`Booking No:`, 20, y);
+    doc.text(bookingNo, 80, y);
+    y += lineSpacing;
+    doc.text(`Package:`, 20, y);
+    doc.text(name, 80, y);
+    y += lineSpacing;
+    doc.text(`Destination:`, 20, y);
+    doc.text(destination, 80, y);
+    y += lineSpacing;
+    doc.text(`Trip Dates:`, 20, y);
+    doc.text(
+      `${new Date(tripStart).toLocaleDateString()} to ${new Date(
+        tripEnd
+      ).toLocaleDateString()}`,
+      80,
+      y
+    );
+    y += lineSpacing;
+    doc.text(`Travelers:`, 20, y);
+    doc.text(String(travelerCount), 80, y);
+    y += lineSpacing;
+    doc.text(`Trip Type:`, 20, y);
+    doc.text(getTripTypeLabel(tripTypeId), 80, y);
+    y += lineSpacing;
+    doc.text(`Base Price:`, 20, y);
+    doc.text(`$${basePrice}`, 80, y);
+    y += lineSpacing;
+    doc.text(`Agency Commission:`, 20, y);
+    doc.text(`$${agencyCommission}`, 80, y);
+    y += lineSpacing;
+
     doc.setDrawColor(100);
     doc.line(20, y + 3, 190, y + 3);
     y += lineSpacing + 3;
-  
+
     doc.setFontSize(14);
     doc.setTextColor(30, 30, 120);
-    doc.text(`Total Paid: $${totalPrice}`, 20, y); y += lineSpacing + 5;
-  
+    doc.text(`Total Paid: $${totalPrice}`, 20, y);
+    y += lineSpacing + 5;
+
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, y);
-  
+
     doc.save(`invoice-${bookingNo}.pdf`);
     toast.success("Invoice downloaded.");
   };
-  
 
   const handleDelete = async (bookingNo) => {
     try {
       const res = await fetch(`http://localhost:8080/api/booking/${bookingNo}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       if (res.ok) {
-        setBookings(prev => prev.filter(b => b.bookingNo !== bookingNo));
+        setBookings((prev) => prev.filter((b) => b.bookingNo !== bookingNo));
         toast.success("Booking deleted.");
       } else {
         toast.error("Failed to delete booking.");
@@ -149,7 +174,10 @@ const MyBookings = () => {
   };
 
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-  const paginatedBookings = filteredBookings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <motion.div
@@ -172,17 +200,27 @@ const MyBookings = () => {
       />
 
       <div className="flex flex-wrap gap-4 mb-6">
-        <select className="border p-2 rounded w-full sm:w-auto" value={sortOption} onChange={e => setSortOption(e.target.value)}>
+        <select
+          className="border p-2 rounded w-full sm:w-auto"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+        >
           <option value="">Sort by</option>
           <option value="date">Date (Newest First)</option>
           <option value="destination">Destination (A-Z)</option>
           <option value="price">Price (High to Low)</option>
         </select>
 
-        <select className="border p-2 rounded w-full sm:w-auto" value={filterDestination} onChange={e => setFilterDestination(e.target.value)}>
+        <select
+          className="border p-2 rounded w-full sm:w-auto"
+          value={filterDestination}
+          onChange={(e) => setFilterDestination(e.target.value)}
+        >
           <option value="">All Destinations</option>
-          {[...new Set(bookings.map(b => b.destination))].map((dest, i) => (
-            <option key={i} value={dest}>{dest}</option>
+          {[...new Set(bookings.map((b) => b.destination))].map((dest, i) => (
+            <option key={i} value={dest}>
+              {dest}
+            </option>
           ))}
         </select>
       </div>
@@ -193,7 +231,9 @@ const MyBookings = () => {
         <p className="text-center text-gray-500">No bookings found.</p>
       ) : (
         paginatedBookings.map((b, i) => {
-          const totalPrice = (Number(b.basePrice) + Number(b.agencyCommission)).toFixed(2);
+          const totalPrice = (
+            Number(b.basePrice) + Number(b.agencyCommission)
+          ).toFixed(2);
           return (
             <motion.div
               key={i}
@@ -202,25 +242,54 @@ const MyBookings = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
             >
-              <p><strong>Booking No:</strong> {b.bookingNo}</p>
-              <p><strong>Package:</strong> {b.name}</p>
-              <p><strong>Destination:</strong> {b.destination}</p>
-              <p><strong>Trip:</strong> {new Date(b.tripStart).toLocaleDateString()} to {new Date(b.tripEnd).toLocaleDateString()}</p>
-              <p><strong>Travelers:</strong> {b.travelerCount}</p>
-              <p><strong>Trip Type:</strong> {getTripTypeLabel(b.tripTypeId)}</p>
-              <p><strong>Total Paid:</strong> ${totalPrice}</p>
-              <p className="text-sm text-gray-500">Saved on: {new Date(b.savedAt).toLocaleString()}</p>
+              <p>
+                <strong>Booking No:</strong> {b.bookingNo}
+              </p>
+              <p>
+                <strong>Package:</strong> {b.name}
+              </p>
+              <p>
+                <strong>Destination:</strong> {b.destination}
+              </p>
+              <p>
+                <strong>Trip:</strong>{" "}
+                {new Date(b.tripStart).toLocaleDateString()} to{" "}
+                {new Date(b.tripEnd).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Travelers:</strong> {b.travelerCount}
+              </p>
+              <p>
+                <strong>Trip Type:</strong> {getTripTypeLabel(b.tripTypeId)}
+              </p>
+              <p>
+                <strong>Total Paid:</strong> ${totalPrice}
+              </p>
+              <p className="text-sm text-gray-500">
+                Saved on: {new Date(b.savedAt).toLocaleString()}
+              </p>
 
-              <div className="booking-actions">
-                <button onClick={() => generateInvoice(b)}>Download Invoice</button>
-                <button onClick={() => handleDelete(i)}>Delete Booking</button>
+              <div className="mt-4 flex flex-wrap gap-2">
                 <button
-                  style={{ backgroundColor: "#0077cc", color: "#fff" }}
+                  onClick={() => generateInvoice(b)}
+                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Download Invoice
+                </button>
+                <button
+                  onClick={() => handleDelete(b.bookingNo)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete Booking
+                </button>
+                <button
                   onClick={() => setSelectedBooking(b)}
+                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
                   View Details
                 </button>
-                <button>
+                {/* TODO: Connect to payment logic once backend is ready */}
+                <button className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                   Pay It Now
                 </button>
               </div>
@@ -229,7 +298,6 @@ const MyBookings = () => {
         })
       )}
 
-      {/* 🔢 Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-4 space-x-2">
           {[...Array(totalPages)].map((_, idx) => (
@@ -239,7 +307,9 @@ const MyBookings = () => {
               whileHover={{ scale: 1.05 }}
               onClick={() => setCurrentPage(idx + 1)}
               className={`px-3 py-1 border rounded ${
-                currentPage === idx + 1 ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+                currentPage === idx + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-600"
               }`}
             >
               {idx + 1}
@@ -248,7 +318,7 @@ const MyBookings = () => {
         </div>
       )}
 
-      {/* 🪟 Modal for Booking Details */}
+      {/* 🪟 Booking Details Modal */}
       <AnimatePresence>
         {selectedBooking && (
           <motion.div
@@ -259,14 +329,41 @@ const MyBookings = () => {
           >
             <div className="bg-white p-6 rounded shadow w-96">
               <h3 className="text-xl font-bold mb-4">📦 Booking Details</h3>
-              <p><strong>Booking No:</strong> {selectedBooking.bookingNo}</p>
-              <p><strong>Package:</strong> {selectedBooking.name}</p>
-              <p><strong>Destination:</strong> {selectedBooking.destination}</p>
-              <p><strong>Trip:</strong> {new Date(selectedBooking.tripStart).toLocaleDateString()} to {new Date(selectedBooking.tripEnd).toLocaleDateString()}</p>
-              <p><strong>Travelers:</strong> {selectedBooking.travelerCount}</p>
-              <p><strong>Trip Type:</strong> {getTripTypeLabel(selectedBooking.tripTypeId)}</p>
-              <p><strong>Total:</strong> ${(Number(selectedBooking.basePrice) + Number(selectedBooking.agencyCommission)).toFixed(2)}</p>
-              <button className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" onClick={() => setSelectedBooking(null)}>Close</button>
+              <p>
+                <strong>Booking No:</strong> {selectedBooking.bookingNo}
+              </p>
+              <p>
+                <strong>Package:</strong> {selectedBooking.name}
+              </p>
+              <p>
+                <strong>Destination:</strong> {selectedBooking.destination}
+              </p>
+              <p>
+                <strong>Trip:</strong>{" "}
+                {new Date(selectedBooking.tripStart).toLocaleDateString()} to{" "}
+                {new Date(selectedBooking.tripEnd).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Travelers:</strong> {selectedBooking.travelerCount}
+              </p>
+              <p>
+                <strong>Trip Type:</strong>{" "}
+                {getTripTypeLabel(selectedBooking.tripTypeId)}
+              </p>
+              <p>
+                <strong>Total:</strong>{" "}
+                $
+                {(
+                  Number(selectedBooking.basePrice) +
+                  Number(selectedBooking.agencyCommission)
+                ).toFixed(2)}
+              </p>
+              <button
+                className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                onClick={() => setSelectedBooking(null)}
+              >
+                Close
+              </button>
             </div>
           </motion.div>
         )}
