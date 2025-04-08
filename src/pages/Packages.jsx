@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import '../styles/Packages.css';
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FaTh, FaList } from "react-icons/fa";
 
 const Packages = () => {
   const [packages, setPackages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [destinationFilter, setDestinationFilter] = useState("");
@@ -24,14 +23,13 @@ const Packages = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-
-    fetch('http://localhost:8080/api/package/list')
-      .then(res => {
+    fetch("http://localhost:8080/api/package/list")
+      .then((res) => {
         if (!res.ok) throw new Error("Failed to load packages");
         return res.json();
       })
-      .then(data => {
-        const mappedPackages = data.map(pkg => ({
+      .then((data) => {
+        const mappedPackages = data.map((pkg) => ({
           packageId: pkg.id,
           name: pkg.pkgname,
           startDate: pkg.pkgstartdate,
@@ -40,15 +38,15 @@ const Packages = () => {
           agencyCommission: pkg.pkgagencycommission,
           basePrice: pkg.pkgbaseprice,
           imageUrl: pkg.imageUrl,
-          destination: pkg.destination || "Unknown",
+          destination: pkg.destination || "",
           rating: pkg.rating || null,
           reviews: pkg.reviews || [],
-          featured: false
+          featured: false,
         }));
         setPackages(mappedPackages);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to fetch packages", err);
         setError("Something went wrong while loading packages.");
         setLoading(false);
@@ -67,7 +65,7 @@ const Packages = () => {
   };
 
   const filteredPackages = packages
-    .filter(pkg =>
+    .filter((pkg) =>
       (pkg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         pkg.destination.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (destinationFilter === "" || pkg.destination === destinationFilter) &&
@@ -84,108 +82,182 @@ const Packages = () => {
 
   const totalPages = Math.ceil(filteredPackages.length / packagesPerPage);
   const startIndex = (currentPage - 1) * packagesPerPage;
-  const currentPackages = filteredPackages.slice(startIndex, startIndex + packagesPerPage);
+  const currentPackages = filteredPackages.slice(
+    startIndex,
+    startIndex + packagesPerPage
+  );
 
   const handlePageChange = (pageNum) => {
     if (pageNum >= 1 && pageNum <= totalPages) {
       setCurrentPage(pageNum);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   return (
-    <motion.div
-      className="packages-container"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h1>Explore Travel Packages</h1>
+    <div id="packages" className="min-h-screen bg-slate-50 pt-28 pb-10 px-4 md:px-12">
+      <motion.h1
+        className="text-3xl font-bold text-center text-blue-700 mb-6"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        🌍 Explore Travel Packages
+      </motion.h1>
 
       {/* Filters */}
-      <div className="filter-controls">
+      <div className="bg-white p-4 rounded shadow flex flex-wrap gap-3 mb-6 items-center justify-between">
         <input
           type="text"
-          placeholder="Search by destination or title..."
+          placeholder="Search destination or title"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded w-full sm:w-48"
         />
-        <select value={destinationFilter} onChange={(e) => setDestinationFilter(e.target.value)}>
+        <select
+          value={destinationFilter}
+          onChange={(e) => setDestinationFilter(e.target.value)}
+          className="border p-2 rounded w-full sm:w-44"
+        >
           <option value="">All Destinations</option>
-          {[...new Set(packages.map(pkg => pkg.destination))].map((dest, i) => (
-            <option key={i} value={dest}>{dest}</option>
+          {[...new Set(packages.map((pkg) => pkg.destination))].map((dest, i) => (
+            <option key={i} value={dest}>
+              {dest}
+            </option>
           ))}
         </select>
-        <input type="date" value={startDateFilter} onChange={(e) => setStartDateFilter(e.target.value)} />
-        <input type="date" value={endDateFilter} onChange={(e) => setEndDateFilter(e.target.value)} />
-        <input type="number" placeholder="Min Price" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
-        <input type="number" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
-        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+        <input
+          type="date"
+          value={startDateFilter}
+          onChange={(e) => setStartDateFilter(e.target.value)}
+          className="border p-2 rounded w-full sm:w-40"
+        />
+        <input
+          type="date"
+          value={endDateFilter}
+          onChange={(e) => setEndDateFilter(e.target.value)}
+          className="border p-2 rounded w-full sm:w-40"
+        />
+        <input
+          type="number"
+          placeholder="Min Price"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          className="border p-2 rounded w-full sm:w-32"
+        />
+        <input
+          type="number"
+          placeholder="Max Price"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          className="border p-2 rounded w-full sm:w-32"
+        />
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="border p-2 rounded w-full sm:w-44"
+        >
           <option value="">Sort by</option>
           <option value="price">Price (Low to High)</option>
           <option value="rating">Rating (High to Low)</option>
         </select>
-        <button className="reset-btn" onClick={resetFilters}>Reset</button>
+        <button
+          onClick={resetFilters}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Reset
+        </button>
       </div>
 
       {/* View Switch */}
-      <div className="view-toggle">
-        <button className={viewMode === "grid" ? "active" : ""} onClick={() => setViewMode("grid")}>
-          🟦 Grid
+      <div className="flex justify-end gap-2 mb-4">
+        <button
+          onClick={() => setViewMode("grid")}
+          className={`p-2 rounded ${viewMode === "grid" ? "bg-blue-600 text-white" : "bg-white border"}`}
+        >
+          <FaTh />
         </button>
-        <button className={viewMode === "list" ? "active" : ""} onClick={() => setViewMode("list")}>
-          📃 List
+        <button
+          onClick={() => setViewMode("list")}
+          className={`p-2 rounded ${viewMode === "list" ? "bg-blue-600 text-white" : "bg-white border"}`}
+        >
+          <FaList />
         </button>
       </div>
 
-      {/* Package List */}
-      <div className={`package-list ${viewMode}`}>
+      {/* Package Cards */}
+      <div className={`${viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-6"}`}>
         {loading ? (
-          <div className="spinner-wrapper">
-            <div className="spinner"></div>
-            <p>Loading packages...</p>
-          </div>
+          <p className="text-center text-gray-500">Loading packages...</p>
         ) : error ? (
-          <div className="error-message">{error}</div>
+          <p className="text-center text-red-600">{error}</p>
         ) : currentPackages.length > 0 ? (
-          currentPackages.map(pkg => (
-            <div key={pkg.packageId} className={`package-card ${viewMode} ${pkg.featured ? "featured" : ""}`}>
-              {pkg.featured && <div className="featured-badge">🌟 Featured</div>}
-              <img src={pkg.imageUrl || "https://via.placeholder.com/300x200"} alt={`Package to ${pkg.destination || "somewhere"}`} />
-              <div>
-                <h3>{pkg.name}</h3>
-                <p><strong>Destination:</strong> {pkg.destination}</p>
+          currentPackages.map((pkg) => (
+            <motion.div
+              key={pkg.packageId}
+              className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition ${
+                viewMode === "list" ? "flex gap-4 p-4" : "p-4"
+              }`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <img
+                src={pkg.imageUrl || "https://source.unsplash.com/400x250/?travel"}
+                alt={pkg.name}
+                className="w-full h-[200px] object-cover rounded"
+              />
+              <div className="mt-4 space-y-1 text-sm text-gray-800">
+                <h3 className="text-lg font-semibold text-blue-700">{pkg.name}</h3>
+                <p><strong>Destination:</strong> {pkg.destination || <span className="italic text-gray-400">Not specified</span>}</p>
                 <p>{pkg.description}</p>
-                <p className="rating">⭐ {pkg.rating || "N/A"}</p>
-                <p><strong>Price:</strong> ${pkg.basePrice}</p>
-                <button onClick={() => navigate(`/packages/${pkg.packageId}`, { state: pkg })}>
+                <p>⭐ {pkg.rating || "N/A"}</p>
+                <p className="text-green-600 font-bold">Price: ${pkg.basePrice}</p>
+                <button
+                  onClick={() => navigate(`/packages/${pkg.packageId}`, { state: pkg })}
+                  className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
                   View Details
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))
         ) : (
-          <p className="empty-message">No packages match your filters.</p>
+          <p className="text-center text-gray-500">No packages match your filters.</p>
         )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="pagination">
-          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>⬅ Prev</button>
+        <div className="flex justify-center mt-6 gap-2 flex-wrap">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            ⬅ Prev
+          </button>
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i}
               onClick={() => handlePageChange(i + 1)}
-              className={currentPage === i + 1 ? 'active' : ''}
+              className={`px-3 py-1 rounded ${
+                currentPage === i + 1 ? "bg-blue-600 text-white" : "bg-white border border-blue-600 text-blue-600"
+              } hover:bg-blue-700 hover:text-white`}
             >
               {i + 1}
             </button>
           ))}
-          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next ➡</button>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Next ➡
+          </button>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

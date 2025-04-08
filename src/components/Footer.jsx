@@ -1,56 +1,64 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Use Link for internal navigation
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
-import "../styles/Footer.css"; // Ensure the CSS file exists
+import { Link } from "react-router-dom";
 
 const Footer = () => {
-    return (
-        <footer className="footer">
-            <div className="footer-content">
-                {/* About Section */}
-                <div className="footer-section">
-                    <h3>About Travel Tales</h3>
-                    <p>Your trusted partner in creating unforgettable journeys. Explore the world with us and discover your next adventure.</p>
-                </div>
+  return (
+    <footer className="bg-[#023e93] text-white text-sm">
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 animate-fade-in">
+        {/* About */}
+        <div>
+          <h3 className="text-base font-semibold mb-3">About Travel Tales</h3>
+          <p className="text-gray-400 text-xs leading-relaxed">
+            Your trusted partner in unforgettable journeys. Discover your next adventure with us.
+          </p>
+        </div>
 
-                {/* Quick Links Section */}
-                <div className="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><Link to="/">Home</Link></li>
-                        <li><Link to="/packages">Packages</Link></li>
-                        <li><Link to="/contact">Contact Us</Link></li>
-                        <li><Link to="/login">Sign In</Link></li>
-                        <li><Link to="/register">Register</Link></li>
-                    </ul>
-                </div>
+        {/* Links */}
+        <div>
+          <h3 className="text-base font-semibold mb-3">Quick Links</h3>
+          <ul className="space-y-1 text-xs">
+            <li><Link to="/" className="hover:text-yellow-400">Home</Link></li>
+            <li><Link to="/packages" className="hover:text-yellow-400">Packages</Link></li>
+            <li><Link to="/contact" className="hover:text-yellow-400">Contact Us</Link></li>
+            <li><Link to="/login" className="hover:text-yellow-400">Sign In</Link></li>
+            <li><Link to="/register" className="hover:text-yellow-400">Register</Link></li>
+          </ul>
+        </div>
 
-                {/* Contact Section */}
-                <div className="footer-section">
-                    <h3>Contact Us</h3>
-                    <p>Email: info@traveltales.com</p>
-                    <p>Phone: +1 (123) 456-7890</p>
-                    <p>Address: 123 Adventure St, Travel City, World</p>
-                </div>
+        {/* Contact */}
+        <div>
+          <h3 className="text-base font-semibold mb-3">Contact Us</h3>
+          <p className="text-gray-400 text-xs">📧 info@traveltales.com</p>
+          <p className="text-gray-400 text-xs">📞 +1 (123) 456-7890</p>
+          <p className="text-gray-400 text-xs">📍 123 Adventure St, Travel City</p>
+        </div>
 
-                {/* Social Media Section */}
-                <div className="footer-section">
-                    <h3>Follow Us</h3>
-                    <div className="social-links">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><FaFacebook /> Facebook</a>
-                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaTwitter /> Twitter</a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram /> Instagram</a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><FaLinkedin /> LinkedIn</a>
-                    </div>
-                </div>
-            </div>
+        {/* Newsletter */}
+        <div>
+          <h3 className="text-base font-semibold mb-3">Newsletter</h3>
+          <p className="text-gray-400 text-xs mb-2">Get travel deals & tips in your inbox.</p>
+          <form className="flex flex-col gap-2">
+            <input
+              type="email"
+              placeholder="Your email"
+              className="px-3 py-1 text-xs rounded bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <button
+              type="submit"
+              className="bg-yellow-400 text-gray-900 text-xs font-semibold px-3 py-1 rounded hover:bg-yellow-500 transition"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
 
-            {/* Copyright Section */}
-            <div className="footer-bottom">
-                <p>&copy; {new Date().getFullYear()} Travel Tales. All rights reserved.</p>
-            </div>
-        </footer>
-    );
+      {/* Bottom bar */}
+      <div className="bg-slate-800 text-center py-2 text-gray-400 text-xs border-t border-slate-700">
+        &copy; {new Date().getFullYear()} Travel Tales. All rights reserved.
+      </div>
+    </footer>
+  );
 };
 
 export default Footer;

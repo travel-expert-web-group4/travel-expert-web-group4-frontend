@@ -31,21 +31,20 @@ const Login = () => {
       setError("Invalid email or password.");
       return;
     }
-    console.log("🔐 Logged in as:", user);
-
   
-    // Set extended user info
+    console.log("🔐 Logged in as:", user);
+  
+    // Save user to context
     login({
       ...user,
       fullName: `${user.firstName} ${user.lastName}`,
       id: user.id
     });
   
-    // Wait a tick to let context update before redirecting
-    setTimeout(() => {
-      navigate(redirectTo, { replace: true });
-    }, 100);
+    // 🔁 Redirect to chat page after login
+    navigate("/chat", { replace: true });
   };
+  
   
 
   return (
