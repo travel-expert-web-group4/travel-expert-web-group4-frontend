@@ -1,22 +1,25 @@
-// 📍 Import statements remain the same
 import React, { useEffect, useRef, useState } from "react";
 import GoogleMapComponent from "../components/GoogleMapComponent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { fetchAgencies, fetchAgents } from "../api/contact"; // Centralized API imports
 
-const AGENTS_PER_PAGE = 3;
+const AGENTS_PER_PAGE = 3; 
 
 const ContactUs = () => {
+  // 🔄 State declarations
   const [agencies, setAgencies] = useState([]);
   const [agents, setAgents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // City/province search
+  const [agentSearch, setAgentSearch] = useState(""); // Agent name/title search
+  const [selectedRole, setSelectedRole] = useState(""); // Role filter
   const [expandedAgencyIds, setExpandedAgencyIds] = useState([]);
+  const [agentPage, setAgentPage] = useState({}); // Track pagination for each agency
   const [loading, setLoading] = useState(true);
-  const [agentSearch, setAgentSearch] = useState("");
-  const [agentPage, setAgentPage] = useState({});
   const [error, setError] = useState("");
-  const agencyRefs = useRef({});
+  const agencyRefs = useRef({}); // Used for scroll-to-agency on marker click
 
+  // 📍 Convert full address to coordinates using Google Maps Geocoding API
   const geocodeAddress = async (address) => {
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
@@ -32,16 +35,15 @@ const ContactUs = () => {
     } catch (err) {
       console.error("Geocoding error:", err);
     }
-    return { lat: 51.045, lng: -114.057 };
+    return { lat: 51.045, lng: -114.057 }; // fallback coords
   };
 
+  // 🚀 Fetch agencies and agents on initial render
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      fetch("http://localhost:8080/api/agencies").then((res) => res.json()),
-      fetch("http://localhost:8080/api/agents").then((res) => res.json()),
-    ])
+    Promise.all([fetchAgencies(), fetchAgents()])
       .then(async ([agenciesData, agentsData]) => {
+        // Geocode each agency's full address
         const geocoded = await Promise.all(
           agenciesData.map(async (agency) => {
             const fullAddress = `${agency.agncyaddress}, ${agency.agncycity}, ${agency.agncyprov}, ${agency.agncypostal}, ${agency.agncycountry}`;
@@ -60,35 +62,44 @@ const ContactUs = () => {
       });
   }, []);
 
+  // 🧠 Toggle agent list visibility for an agency
   const toggleAgency = (id) => {
     setExpandedAgencyIds((prev) =>
       prev.includes(id) ? prev.filter((aid) => aid !== id) : [...prev, id]
     );
-    setAgentPage((prev) => ({ ...prev, [id]: 1 }));
+    setAgentPage((prev) => ({ ...prev, [id]: 1 })); // Reset to first page on toggle
   };
 
+  // 🔍 Filter agents by name/role + role dropdown + agency ID
   const getFilteredAgents = (agencyId) => {
     const filtered = agents.filter(
       (agent) =>
         agent.agencyid?.id === agencyId &&
-        (agent.agtfirstname.toLowerCase().includes(agentSearch.toLowerCase()) ||
+        (!selectedRole || agent.agtposition === selectedRole) &&
+        (
+          agent.agtfirstname.toLowerCase().includes(agentSearch.toLowerCase()) ||
           agent.agtlastname.toLowerCase().includes(agentSearch.toLowerCase()) ||
-          agent.agtposition.toLowerCase().includes(agentSearch.toLowerCase()))
+          agent.agtposition.toLowerCase().includes(agentSearch.toLowerCase())
+        )
     );
+
     const currentPage = agentPage[agencyId] || 1;
     const start = (currentPage - 1) * AGENTS_PER_PAGE;
+
     return {
       agents: filtered.slice(start, start + AGENTS_PER_PAGE),
       total: filtered.length,
     };
   };
 
+  // 🧹 Filter agencies by city or province
   const filteredAgencies = agencies.filter(
     (agency) =>
       agency.agncycity.toLowerCase().includes(searchTerm.toLowerCase()) ||
       agency.agncyprov.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 🎯 Scroll to card when marker clicked on map
   const handleMarkerClick = (agencyId) => {
     const element = agencyRefs.current[agencyId];
     if (element) {
@@ -98,6 +109,7 @@ const ContactUs = () => {
     }
   };
 
+  // 🌀 Show skeleton loader while loading
   if (loading) {
     return (
       <div id="contact" className="min-h-screen px-4 py-12 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
@@ -124,16 +136,17 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pt-28 pb-10 px-4 md:px-10 relative">
-      {/* Header */}
+      {/* 🔵 Page Header */}
       <h2 className="text-4xl font-extrabold text-center text-blue-800 mb-2">📞 Contact Us</h2>
       <p className="text-center text-gray-600 text-sm mb-8 animate-fade-in">
         Find our agencies and reach the right agent for your needs
       </p>
 
-      {/* Search + Map */}
+      {/* 🔍 Search + Map Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-        {/* Search Fields with placeholders */}
+        {/* 🔍 Search Inputs */}
         <div className="space-y-6">
+          {/* City/Province + Agent search */}
           {[
             {
               label: "Search agencies by city or province",
@@ -162,15 +175,38 @@ const ContactUs = () => {
               </div>
             </div>
           ))}
+
+          {/* 🆕 Dropdown for agent role/title filter */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Filter by agent role/title:</label>
+            <div className="relative">
+              <select
+                className="w-full border border-gray-300 rounded-md pl-10 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none bg-white"
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+              >
+                <option value="">All Roles</option>
+                {[...new Set(agents.map((a) => a.agtposition))].map((role, i) => (
+                  <option key={i} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+              <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 text-gray-400" />
+              <div className="pointer-events-none absolute right-3 top-2.5 text-gray-500">
+                ▼
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Map */}
+        {/* 🗺️ Google Map */}
         <div className="h-[350px] rounded overflow-hidden shadow">
           <GoogleMapComponent agencies={filteredAgencies} onMarkerClick={handleMarkerClick} />
         </div>
       </div>
 
-      {/* Agencies and agents */}
+      {/* 🏢 Agency Cards with Agent List */}
       {filteredAgencies.length === 0 ? (
         <p className="text-center text-gray-500">No matching agencies found.</p>
       ) : (
@@ -186,6 +222,7 @@ const ContactUs = () => {
                 ref={(el) => (agencyRefs.current[agency.id] = el)}
                 className="bg-white rounded-lg shadow p-6 border border-gray-100 transition hover:shadow-xl hover:-translate-y-1 duration-300"
               >
+                {/* 📌 Agency Info */}
                 <h4 className="text-xl font-semibold text-blue-700 mb-2">Agency #{agency.id}</h4>
                 <div className="text-sm text-gray-700 space-y-1 mb-4">
                   <p><strong>Address:</strong> {agency.agncyaddress}</p>
@@ -197,6 +234,7 @@ const ContactUs = () => {
                   <p><strong>Fax:</strong> {agency.agncyfax}</p>
                 </div>
 
+                {/* 🔽 Toggle Agent List */}
                 <button
                   className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition"
                   onClick={() => toggleAgency(agency.id)}
@@ -204,6 +242,7 @@ const ContactUs = () => {
                   {expandedAgencyIds.includes(agency.id) ? "Hide Agents" : "Show Agents"}
                 </button>
 
+                {/* 👥 Agent Cards */}
                 {expandedAgencyIds.includes(agency.id) && (
                   <div className="mt-5 animate-fade-in transition-all duration-300 ease-out">
                     {agencyAgents.length === 0 ? (
@@ -240,6 +279,7 @@ const ContactUs = () => {
                           ))}
                         </ul>
 
+                        {/* 🔢 Pagination */}
                         {totalPages > 1 && (
                           <div className="mt-4 flex flex-wrap gap-2">
                             {Array.from({ length: totalPages }, (_, i) => (
@@ -269,7 +309,7 @@ const ContactUs = () => {
         </div>
       )}
 
-      {/* Scroll to Top */}
+      {/* 🔼 Scroll to Top */}
       {filteredAgencies.length > 3 && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
