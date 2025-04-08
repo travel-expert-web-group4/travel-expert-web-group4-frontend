@@ -17,12 +17,14 @@ import DashboardPage from "./pages/DashboardPage";
 import ContactUs from "./pages/ContactUs";
 import CustomerProfile from "./pages/CustomerProfile";
 import AgentProfile from './pages/AgentProfile'; 
+import ChatPage from "./pages/ChatPage";
 
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import ChatWidget from './components/ChatWidget';
 import ProtectedRoute from "./components/ProtectedRoute";
+import ChatWidget from './components/ChatWidget'; 
+
 
 function AppRoutes() {
   return (
@@ -39,6 +41,7 @@ function AppRoutes() {
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/email-preview" element={<EmailPreview />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/chat" element={<ChatPage />} />
 
         <Route
           path="/dashboard"
@@ -84,8 +87,9 @@ function AppRoutes() {
           }
         />
       </Routes>
-      <ChatWidget />
+      
       <Footer />
+      <ChatWidget />
     </>
   );
 }

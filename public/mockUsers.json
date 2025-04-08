@@ -46,7 +46,29 @@
     "firstName": "Laetia",
     "lastName": "Enison",
     "role": "customer"
+  },
+  {
+    "id": 144,
+    "email": "agent1@example.com",
+    "password": "test123",
+    "firstName": "agent1",
+    "lastName": "agent1",
+    "role": "agent"
+  },
+  {
+    "id": 145,
+    "email": "john.coville@travelexperts.com",
+    "password": "test123",
+    "firstName": "John",
+    "lastName": "Coville",
+    "role": "agent"
   }
+
+
+
+
+
+  
   
   
 ]
