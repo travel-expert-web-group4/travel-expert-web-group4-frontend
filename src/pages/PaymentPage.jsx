@@ -110,6 +110,9 @@ const PaymentPage = () => {
             "Pay Now"
           )}
         </button>
+        <button className="later" onClick={() => navigate(`/my-bookings`)}>
+          Pay it later
+        </button>
       </form>
 
       {success && (

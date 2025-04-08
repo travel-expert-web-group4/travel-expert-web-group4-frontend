@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/BookingPage.css";
+import { newBooking } from "../api/booking";
 
 const BookingPage = () => {
   const { state } = useLocation();
@@ -17,23 +18,28 @@ const BookingPage = () => {
     endDate
   } = state;
 
-  const totalPrice = Number(basePrice) + Number(agencyCommission);
+  const tripPrice = Number(basePrice) + Number(agencyCommission);
+
+  const [totalPrice,setTotalPrice] = useState(1*tripPrice)
 
   const [formData, setFormData] = useState({
-    fullName: "",
+    fullName: "", 
     email: "",
     travelers: 1,
     tripTypeId: "L" // default: Leisure
   });
 
   const handleChange = (e) => {
+    if(e.target.name == "travelers") {
+      setTotalPrice(tripPrice * Number(e.target.value));
+    }
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const bookingData = {
@@ -45,11 +51,20 @@ const BookingPage = () => {
       travelerCount: formData.travelers,
       tripTypeId: formData.tripTypeId,
       basePrice,
-      agencyCommission
+      agencyCommission,
+      packageId
     };
 
-    navigate("/payment", { state: bookingData });
+    const res = await newBooking(bookingData,104);
+    if(res != null){
+      navigate("/payment", { state: bookingData });
+    }
   };
+
+  const dateFormat = (date) => {
+    const data = new Date(date);
+    return `${data.getMonth() + 1}/${data.getDate()}/${data.getFullYear()}`;
+  }
 
   return (
     <motion.div
@@ -60,7 +75,8 @@ const BookingPage = () => {
     >
       <h2>Book: {name}</h2>
       <p><strong>Destination:</strong> {destination}</p>
-      <p><strong>Trip Dates:</strong> {startDate} to {endDate}</p>
+      <p><strong>Trip Dates:</strong> {dateFormat(startDate)} to {dateFormat(endDate)}</p>
+      <p><strong>Trip Price:</strong> ${tripPrice}</p>
       <p><strong>Total Price:</strong> ${totalPrice}</p>
 
       <form onSubmit={handleSubmit}>

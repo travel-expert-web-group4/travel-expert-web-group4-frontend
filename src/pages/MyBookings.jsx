@@ -20,6 +20,13 @@ const MyBookings = () => {
 
   const customerId = 104;
 
+  // useEffect(() => {
+  //   const saved = JSON.parse(localStorage.getItem("myBookings")) || [];
+  //   setBookings(saved);
+  // }, []);
+
+
+// Simulate backend data from API
   useEffect(() => {
     fetch(`http://localhost:8080/api/booking/customer/${customerId}`)
       .then(res => res.json())
@@ -204,10 +211,18 @@ const MyBookings = () => {
               <p><strong>Total Paid:</strong> ${totalPrice}</p>
               <p className="text-sm text-gray-500">Saved on: {new Date(b.savedAt).toLocaleString()}</p>
 
-              <div className="mt-4 flex gap-3 flex-wrap">
-                <button onClick={() => generateInvoice(b)} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Download Invoice</button>
-                <button onClick={() => handleDelete(b.bookingNo)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
-                <button onClick={() => setSelectedBooking(b)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">View Details</button>
+              <div className="booking-actions">
+                <button onClick={() => generateInvoice(b)}>Download Invoice</button>
+                <button onClick={() => handleDelete(i)}>Delete Booking</button>
+                <button
+                  style={{ backgroundColor: "#0077cc", color: "#fff" }}
+                  onClick={() => setSelectedBooking(b)}
+                >
+                  View Details
+                </button>
+                <button>
+                  Pay It Now
+                </button>
               </div>
             </motion.div>
           );
