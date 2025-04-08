@@ -50,3 +50,22 @@ export const bookingList =  async (customerId) => {
         return null;
     }
 }
+
+// delete booking
+export const deleteBooking = async (bookingNo) => {
+  try {
+    const res = await fetch(`${BASE_URL}/booking/${bookingNo}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        token: "111",
+      },
+    });
+    if (!res.ok) throw new Error("Failed to delete booking");
+    return true;
+  } catch (error) {
+    console.error("Error deleting booking:", error);
+    return false;
+  }
+};
+
