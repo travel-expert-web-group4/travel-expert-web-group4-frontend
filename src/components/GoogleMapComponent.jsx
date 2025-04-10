@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   GoogleMap,
-  useLoadScript,
   InfoWindow,
 } from "@react-google-maps/api";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 const mapContainerStyle = {
   width: "100%",
@@ -17,26 +15,20 @@ const defaultCenter = {
 };
 
 const GoogleMapComponent = ({ agencies, onMarkerClick }) => {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  });
-
   const mapRef = useRef(null);
   const [activeMarker, setActiveMarker] = useState(null);
-  const markerClustererRef = useRef(null);
 
   useEffect(() => {
     if (!mapRef.current || !window.google || agencies.length === 0) return;
 
-    // Remove existing cluster if any
-    if (markerClustererRef.current) {
-      markerClustererRef.current.clearMarkers();
-    }
+    // Clear previous markers
+    mapRef.current.markers?.forEach((m) => m.setMap(null));
+    mapRef.current.markers = [];
 
-    // Create markers
-    const markers = agencies.map((agency) => {
-      const marker = new window.google.maps.Marker({
+    agencies.forEach((agency) => {
+      const marker = new google.maps.Marker({
         position: { lat: agency.lat, lng: agency.lng },
+        map: mapRef.current,
         title: `Agency #${agency.id}`,
       });
 
@@ -45,25 +37,19 @@ const GoogleMapComponent = ({ agencies, onMarkerClick }) => {
         onMarkerClick?.(agency.id);
       });
 
-      return marker;
-    });
-
-    // Initialize clusterer
-    markerClustererRef.current = new MarkerClusterer({
-      markers,
-      map: mapRef.current,
+      mapRef.current.markers.push(marker);
     });
   }, [agencies, onMarkerClick]);
-
-  if (loadError) return <div>Error loading map</div>;
-  if (!isLoaded) return <div>Loading map...</div>;
 
   return (
     <GoogleMap
       mapContainerStyle={mapContainerStyle}
       zoom={9}
       center={defaultCenter}
-      onLoad={(map) => (mapRef.current = map)}
+      onLoad={(map) => {
+        mapRef.current = map;
+        map.markers = [];
+      }}
     >
       {activeMarker && (
         <InfoWindow

@@ -1,49 +1,60 @@
 import React, { useEffect, useRef, useState } from "react";
 import GoogleMapComponent from "../components/GoogleMapComponent";
+import AddressAutocomplete from "../components/AddressAutocomplete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import { fetchAgencies, fetchAgents } from "../api/contact"; // Centralized API imports
+import { fetchAgencies, fetchAgents } from "../api/contact";
 
-const AGENTS_PER_PAGE = 3; 
+const AGENTS_PER_PAGE = 3;
 
 const ContactUs = () => {
-  // 🔄 State declarations
   const [agencies, setAgencies] = useState([]);
   const [agents, setAgents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // City/province search
-  const [agentSearch, setAgentSearch] = useState(""); // Agent name/title search
-  const [selectedRole, setSelectedRole] = useState(""); // Role filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [agentSearch, setAgentSearch] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
   const [expandedAgencyIds, setExpandedAgencyIds] = useState([]);
-  const [agentPage, setAgentPage] = useState({}); // Track pagination for each agency
+  const [agentPage, setAgentPage] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const agencyRefs = useRef({}); // Used for scroll-to-agency on marker click
+  const agencyRefs = useRef({});
 
-  // 📍 Convert full address to coordinates using Google Maps Geocoding API
   const geocodeAddress = async (address) => {
+    const cacheKey = `geocode_${address}`;
+    const cached = localStorage.getItem(cacheKey);
+  
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address
     )}&key=${apiKey}`;
+  
     try {
       const res = await fetch(url);
       const data = await res.json();
       if (data.status === "OK" && data.results.length > 0) {
         const { lat, lng } = data.results[0].geometry.location;
+  
+        // Save to cache
+        localStorage.setItem(cacheKey, JSON.stringify({ lat, lng }));
         return { lat, lng };
       }
     } catch (err) {
       console.error("Geocoding error:", err);
     }
-    return { lat: 51.045, lng: -114.057 }; // fallback coords
+  
+    // fallback coords (Calgary)
+    return { lat: 51.045, lng: -114.057 };
   };
+  
 
-  // 🚀 Fetch agencies and agents on initial render
   useEffect(() => {
     setLoading(true);
     Promise.all([fetchAgencies(), fetchAgents()])
       .then(async ([agenciesData, agentsData]) => {
-        // Geocode each agency's full address
         const geocoded = await Promise.all(
           agenciesData.map(async (agency) => {
             const fullAddress = `${agency.agncyaddress}, ${agency.agncycity}, ${agency.agncyprov}, ${agency.agncypostal}, ${agency.agncycountry}`;
@@ -62,15 +73,13 @@ const ContactUs = () => {
       });
   }, []);
 
-  // 🧠 Toggle agent list visibility for an agency
   const toggleAgency = (id) => {
     setExpandedAgencyIds((prev) =>
       prev.includes(id) ? prev.filter((aid) => aid !== id) : [...prev, id]
     );
-    setAgentPage((prev) => ({ ...prev, [id]: 1 })); // Reset to first page on toggle
+    setAgentPage((prev) => ({ ...prev, [id]: 1 }));
   };
 
-  // 🔍 Filter agents by name/role + role dropdown + agency ID
   const getFilteredAgents = (agencyId) => {
     const filtered = agents.filter(
       (agent) =>
@@ -92,14 +101,12 @@ const ContactUs = () => {
     };
   };
 
-  // 🧹 Filter agencies by city or province
   const filteredAgencies = agencies.filter(
     (agency) =>
       agency.agncycity.toLowerCase().includes(searchTerm.toLowerCase()) ||
       agency.agncyprov.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🎯 Scroll to card when marker clicked on map
   const handleMarkerClick = (agencyId) => {
     const element = agencyRefs.current[agencyId];
     if (element) {
@@ -109,7 +116,6 @@ const ContactUs = () => {
     }
   };
 
-  // 🌀 Show skeleton loader while loading
   if (loading) {
     return (
       <div id="contact" className="min-h-screen px-4 py-12 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
@@ -136,47 +142,44 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pt-28 pb-10 px-4 md:px-10 relative">
-      {/* 🔵 Page Header */}
       <h2 className="text-4xl font-extrabold text-center text-blue-800 mb-2">📞 Contact Us</h2>
       <p className="text-center text-gray-600 text-sm mb-8 animate-fade-in">
         Find our agencies and reach the right agent for your needs
       </p>
 
-      {/* 🔍 Search + Map Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-        {/* 🔍 Search Inputs */}
         <div className="space-y-6">
-          {/* City/Province + Agent search */}
-          {[
-            {
-              label: "Search agencies by city or province",
-              value: searchTerm,
-              set: setSearchTerm,
-              placeholder: "e.g. Calgary or AB",
-            },
-            {
-              label: "Search agents by name or role",
-              value: agentSearch,
-              set: setAgentSearch,
-              placeholder: "e.g. Janet or Senior Agent",
-            },
-          ].map(({ label, value, set, placeholder }, idx) => (
-            <div key={idx}>
-              <label className="block text-gray-700 font-medium mb-1">{label}:</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={value}
-                  onChange={(e) => set(e.target.value)}
-                  placeholder={placeholder}
-                />
-                <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 text-gray-400" />
-              </div>
-            </div>
-          ))}
+          {/* 🔎 City/province autocomplete */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Search agencies by city or province:</label>
+            <AddressAutocomplete
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onPlaceSelected={(place) => {
+                const components = place?.address_components || [];
+                const city = components.find(c => c.types.includes("locality"))?.long_name || "";
+                const province = components.find(c => c.types.includes("administrative_area_level_1"))?.short_name || "";
+                setSearchTerm(`${city} ${province}`);
+              }}
+            />
+          </div>
 
-          {/* 🆕 Dropdown for agent role/title filter */}
+          {/* 🔎 Agent search */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Search agents by name or role:</label>
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={agentSearch}
+                onChange={(e) => setAgentSearch(e.target.value)}
+                placeholder="e.g. Janet or Senior Agent"
+              />
+              <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 text-gray-400" />
+            </div>
+          </div>
+
+          {/* 🔽 Filter by role */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Filter by agent role/title:</label>
             <div className="relative">
@@ -193,20 +196,16 @@ const ContactUs = () => {
                 ))}
               </select>
               <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 text-gray-400" />
-              <div className="pointer-events-none absolute right-3 top-2.5 text-gray-500">
-                ▼
-              </div>
+              <div className="pointer-events-none absolute right-3 top-2.5 text-gray-500">▼</div>
             </div>
           </div>
         </div>
 
-        {/* 🗺️ Google Map */}
         <div className="h-[350px] rounded overflow-hidden shadow">
           <GoogleMapComponent agencies={filteredAgencies} onMarkerClick={handleMarkerClick} />
         </div>
       </div>
 
-      {/* 🏢 Agency Cards with Agent List */}
       {filteredAgencies.length === 0 ? (
         <p className="text-center text-gray-500">No matching agencies found.</p>
       ) : (
@@ -222,7 +221,6 @@ const ContactUs = () => {
                 ref={(el) => (agencyRefs.current[agency.id] = el)}
                 className="bg-white rounded-lg shadow p-6 border border-gray-100 transition hover:shadow-xl hover:-translate-y-1 duration-300"
               >
-                {/* 📌 Agency Info */}
                 <h4 className="text-xl font-semibold text-blue-700 mb-2">Agency #{agency.id}</h4>
                 <div className="text-sm text-gray-700 space-y-1 mb-4">
                   <p><strong>Address:</strong> {agency.agncyaddress}</p>
@@ -234,7 +232,6 @@ const ContactUs = () => {
                   <p><strong>Fax:</strong> {agency.agncyfax}</p>
                 </div>
 
-                {/* 🔽 Toggle Agent List */}
                 <button
                   className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition"
                   onClick={() => toggleAgency(agency.id)}
@@ -242,7 +239,6 @@ const ContactUs = () => {
                   {expandedAgencyIds.includes(agency.id) ? "Hide Agents" : "Show Agents"}
                 </button>
 
-                {/* 👥 Agent Cards */}
                 {expandedAgencyIds.includes(agency.id) && (
                   <div className="mt-5 animate-fade-in transition-all duration-300 ease-out">
                     {agencyAgents.length === 0 ? (
@@ -253,11 +249,7 @@ const ContactUs = () => {
                           {agencyAgents.map((agent) => (
                             <li key={agent.id} className="flex items-start gap-4 py-4">
                               <img
-                                src={
-                                  agent.profileImageUrl
-                                    ? `http://localhost:8080${agent.profileImageUrl}`
-                                    : "/default-avatar.png"
-                                }
+                                src={agent.profileImageUrl ? `http://localhost:8080${agent.profileImageUrl}` : "/default-avatar.png"}
                                 onError={(e) => (e.target.src = "/default-avatar.png")}
                                 alt={`${agent.agtfirstname}'s profile`}
                                 className="w-14 h-14 rounded-full object-cover"
@@ -270,16 +262,12 @@ const ContactUs = () => {
                                 {agent.agtposition}
                                 <br />
                                 📞 {agent.agtbusphone} <br />
-                                ✉️{" "}
-                                <a href={`mailto:${agent.agtemail}`} className="text-blue-600 hover:underline">
-                                  {agent.agtemail}
-                                </a>
+                                ✉️ <a href={`mailto:${agent.agtemail}`} className="text-blue-600 hover:underline">{agent.agtemail}</a>
                               </div>
                             </li>
                           ))}
                         </ul>
 
-                        {/* 🔢 Pagination */}
                         {totalPages > 1 && (
                           <div className="mt-4 flex flex-wrap gap-2">
                             {Array.from({ length: totalPages }, (_, i) => (
@@ -309,7 +297,6 @@ const ContactUs = () => {
         </div>
       )}
 
-      {/* 🔼 Scroll to Top */}
       {filteredAgencies.length > 3 && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

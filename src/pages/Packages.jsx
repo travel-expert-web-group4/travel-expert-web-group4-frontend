@@ -23,7 +23,7 @@ const Packages = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch("http://localhost:8080/api/package/list")
+    fetch("http://localhost:8080/api/package")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load packages");
         return res.json();
@@ -37,10 +37,12 @@ const Packages = () => {
           description: pkg.pkgdesc,
           agencyCommission: pkg.pkgagencycommission,
           basePrice: pkg.pkgbaseprice,
-          imageUrl: pkg.imageUrl,
-          destination: pkg.destination || "",
-          rating: pkg.rating || null,
+          imageUrl: pkg.imageUrl || null,
+          destination: pkg.destination || "Unknown",
+          rating: pkg.rating ?? null,
           reviews: pkg.reviews || [],
+          lat: pkg.lat ?? null,
+          lng: pkg.lng ?? null,
           featured: false,
         }));
         setPackages(mappedPackages);
@@ -209,9 +211,10 @@ const Packages = () => {
               />
               <div className="mt-4 space-y-1 text-sm text-gray-800">
                 <h3 className="text-lg font-semibold text-blue-700">{pkg.name}</h3>
-                <p><strong>Destination:</strong> {pkg.destination || <span className="italic text-gray-400">Not specified</span>}</p>
+                <p><strong>Destination:</strong> {pkg.destination}</p>
                 <p>{pkg.description}</p>
                 <p>⭐ {pkg.rating || "N/A"}</p>
+                <p><strong>Reviews:</strong> {pkg.reviews.length}</p>
                 <p className="text-green-600 font-bold">Price: ${pkg.basePrice}</p>
                 <button
                   onClick={() => navigate(`/packages/${pkg.packageId}`, { state: pkg })}

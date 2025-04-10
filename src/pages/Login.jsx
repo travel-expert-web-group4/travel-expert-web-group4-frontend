@@ -32,18 +32,15 @@ const Login = () => {
       return;
     }
   
-    console.log("🔐 Logged in as:", user);
-  
-    // Save user to context
+    // Add fullName field for Navbar & profile
     login({
       ...user,
-      fullName: `${user.firstName} ${user.lastName}`,
-      id: user.id
+      fullName: `${user.firstName} ${user.lastName}`
     });
   
-    // 🔁 Redirect to chat page after login
-    navigate("/chat", { replace: true });
+    navigate(redirectTo, { replace: true }); // goes to /profile or where user was before
   };
+  
   
   
 

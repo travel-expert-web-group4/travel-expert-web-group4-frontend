@@ -15,7 +15,7 @@ import BookingPage from './pages/BookingPage';
 import WalletPage from './pages/WalletPage';
 import DashboardPage from "./pages/DashboardPage";
 import ContactUs from "./pages/ContactUs";
-import CustomerProfile from "./pages/CustomerProfile";
+import UserProfile from "./pages/UserProfile";
 import AgentProfile from './pages/AgentProfile'; 
 import ChatPage from "./pages/ChatPage";
 
@@ -25,8 +25,12 @@ import Footer from './components/Footer';
 import ProtectedRoute from "./components/ProtectedRoute";
 import ChatWidget from './components/ChatWidget'; 
 
+// ✅ Bring in user from AuthContext
+import { useAuth } from './contexts/AuthContext';
 
 function AppRoutes() {
+  const { user } = useAuth(); // ✅ Get user from context
+
   return (
     <>
       <Navbar />
@@ -52,14 +56,13 @@ function AppRoutes() {
           }
         />
         <Route
-        path="/agent-profile"
-         element={
-          <ProtectedRoute allowedRoles={['agent']}>
-          <AgentProfile />
-          </ProtectedRoute>
+          path="/agent-profile"
+          element={
+            <ProtectedRoute allowedRoles={['agent']}>
+              <AgentProfile />
+            </ProtectedRoute>
           }
-       />
-
+        />
         <Route
           path="/wallet"
           element={
@@ -68,7 +71,6 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/my-bookings"
           element={
@@ -77,17 +79,16 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/profile"
           element={
             <ProtectedRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
-              <CustomerProfile />
+              <UserProfile user={user} /> {/* ✅ Now user is passed in */}
             </ProtectedRoute>
           }
         />
       </Routes>
-      
+
       <Footer />
       <ChatWidget />
     </>

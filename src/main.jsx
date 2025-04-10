@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <LoadScript
       googleMapsApiKey={GOOGLE_MAPS_API_KEY}
-      libraries={["places"]} // Load Places library for autocomplete
+      libraries={["places", "marker"]} // Load Places library for autocomplete
     >
       <AuthProvider>
         <BrowserRouter>
