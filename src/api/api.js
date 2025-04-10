@@ -1,6 +1,6 @@
 //Below is just an example of a central api and how to fetch data from a backend API.
 
-const BASE_URL = "http://localhost:8000/api"; // Replace with actual backend URL
+const BASE_URL = "http://localhost:8800/api"; // Replace with actual backend URL
 
 // Fetch all travel packages
 export const fetchPackages = async () => {

@@ -23,7 +23,7 @@ const Packages = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch("http://localhost:8080/api/package/list")
+    fetch("http://localhost:8080/api/package")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load packages");
         return res.json();

@@ -5,6 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Spinner from "../components/Spinner";
 import logoBase64 from "../utils/logoBase64";
 import { bookingList, deleteBooking } from "../api/booking";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 4; // Number of bookings to show per page
 
@@ -18,6 +19,7 @@ const MyBookings = () => {
   const [selectedBooking, setSelectedBooking] = useState(null); // For modal display
   const [loading, setLoading] = useState(true); // Spinner toggle
   const [currentPage, setCurrentPage] = useState(1); // Pagination
+  const navigate = useNavigate();
 
   const customerId = 104; // Temporary hardcoded customer ID
 
@@ -70,6 +72,12 @@ const MyBookings = () => {
         (a, b) =>
           b.basePrice + b.agencyCommission - (a.basePrice + a.agencyCommission)
       );
+    } else if (sortOption === "paid") {
+      updated.sort((a, b) => {
+        if (a.bookingDate === null && b.bookingDate !== null) return -1;
+        if (a.bookingDate !== null && b.bookingDate === null) return 1;
+        return 0;
+      });
     }
 
     setFilteredBookings(updated);
@@ -176,7 +184,9 @@ const MyBookings = () => {
 
   // 🗑️ Handle delete with confirmation
   const handleDelete = async (bookingNo) => {
-    const confirmed = window.confirm("Are you sure you want to delete this booking?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this booking?"
+    );
     if (!confirmed) return;
 
     const success = await deleteBooking(bookingNo);
@@ -194,6 +204,10 @@ const MyBookings = () => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  const payNow = (bookingNo) => {
+    navigate("/payment", { state: { bookingNo: bookingNo } });
+  };
 
   return (
     <motion.div
@@ -225,6 +239,7 @@ const MyBookings = () => {
           <option value="date">Date (Newest First)</option>
           <option value="destination">Destination (A-Z)</option>
           <option value="price">Price (High to Low)</option>
+          <option value="paid">Payment Status</option>
         </select>
 
         <select
@@ -248,7 +263,7 @@ const MyBookings = () => {
         <p className="text-center text-gray-500">No bookings found.</p>
       ) : (
         paginatedBookings.map((b, i) => {
-          const totalPrice = (
+          const totalPrice = b.travelerCount * (
             Number(b.basePrice) + Number(b.agencyCommission)
           ).toFixed(2);
           return (
@@ -259,24 +274,63 @@ const MyBookings = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
             >
-              <p><strong>Booking No:</strong> {b.bookingNo}</p>
-              <p><strong>Package:</strong> {b.name}</p>
-              <p><strong>Destination:</strong> {b.destination}</p>
-              <p><strong>Trip:</strong> {new Date(b.tripStart).toLocaleDateString()} to {new Date(b.tripEnd).toLocaleDateString()}</p>
-              <p><strong>Travelers:</strong> {b.travelerCount}</p>
-              <p><strong>Trip Type:</strong> {getTripTypeLabel(b.tripTypeId)}</p>
-              <p><strong>Total Paid:</strong> ${totalPrice}</p>
-              <p className="text-sm text-gray-500">Saved on: {new Date(b.savedAt).toLocaleString()}</p>
+              <p>
+                <strong>Booking No:</strong> {b.bookingNo}
+              </p>
+              <p>
+                <strong>Package:</strong> {b.name}
+              </p>
+              <p>
+                <strong>Destination:</strong> {b.destination}
+              </p>
+              <p>
+                <strong>Trip:</strong>{" "}
+                {new Date(b.tripStart).toLocaleDateString()} to{" "}
+                {new Date(b.tripEnd).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Travelers:</strong> {b.travelerCount}
+              </p>
+              <p>
+                <strong>Trip Type:</strong> {getTripTypeLabel(b.tripTypeId)}
+              </p>
+              <p>
+                <strong>Total Paid:</strong> ${totalPrice}
+              </p>
+              <p className="text-sm text-gray-500">
+                Saved on: {new Date(b.savedAt).toLocaleString()}
+              </p>
 
               {/* 📦 Action Buttons */}
               <div className="mt-4 flex flex-wrap gap-2">
-                <button onClick={() => generateInvoice(b)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Download Invoice</button>
-                <button onClick={() => handleDelete(b.bookingNo)} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete Booking</button>
-                <button onClick={() => setSelectedBooking(b)} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">View Details</button>
-                <button className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-                  {/* TODO: Connect this button to payment logic later */}
-                  Pay It Now
+                <button
+                  onClick={() => generateInvoice(b)}
+                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Download Invoice
                 </button>
+                <button
+                  onClick={() => handleDelete(b.bookingNo)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete Booking
+                </button>
+                <button
+                  onClick={() => setSelectedBooking(b)}
+                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  View Details
+                </button>
+                {b.bookingDate == null ? (
+                  <button
+                    onClick={() => payNow(b.bookingNo)}
+                    className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                  >
+                    Pay It Now
+                  </button>
+                ) : (
+                  ""
+                )}
               </div>
             </motion.div>
           );
@@ -293,7 +347,9 @@ const MyBookings = () => {
               whileHover={{ scale: 1.05 }}
               onClick={() => setCurrentPage(idx + 1)}
               className={`px-3 py-1 border rounded ${
-                currentPage === idx + 1 ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+                currentPage === idx + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-600"
               }`}
             >
               {idx + 1}
@@ -313,14 +369,40 @@ const MyBookings = () => {
           >
             <div className="bg-white p-6 rounded shadow w-96">
               <h3 className="text-xl font-bold mb-4">📦 Booking Details</h3>
-              <p><strong>Booking No:</strong> {selectedBooking.bookingNo}</p>
-              <p><strong>Package:</strong> {selectedBooking.name}</p>
-              <p><strong>Destination:</strong> {selectedBooking.destination}</p>
-              <p><strong>Trip:</strong> {new Date(selectedBooking.tripStart).toLocaleDateString()} to {new Date(selectedBooking.tripEnd).toLocaleDateString()}</p>
-              <p><strong>Travelers:</strong> {selectedBooking.travelerCount}</p>
-              <p><strong>Trip Type:</strong> {getTripTypeLabel(selectedBooking.tripTypeId)}</p>
-              <p><strong>Total:</strong> ${(Number(selectedBooking.basePrice) + Number(selectedBooking.agencyCommission)).toFixed(2)}</p>
-              <button className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" onClick={() => setSelectedBooking(null)}>Close</button>
+              <p>
+                <strong>Booking No:</strong> {selectedBooking.bookingNo}
+              </p>
+              <p>
+                <strong>Package:</strong> {selectedBooking.name}
+              </p>
+              <p>
+                <strong>Destination:</strong> {selectedBooking.destination}
+              </p>
+              <p>
+                <strong>Trip:</strong>{" "}
+                {new Date(selectedBooking.tripStart).toLocaleDateString()} to{" "}
+                {new Date(selectedBooking.tripEnd).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Travelers:</strong> {selectedBooking.travelerCount}
+              </p>
+              <p>
+                <strong>Trip Type:</strong>{" "}
+                {getTripTypeLabel(selectedBooking.tripTypeId)}
+              </p>
+              <p>
+                <strong>Total:</strong> $
+                {(
+                  Number(selectedBooking.basePrice) +
+                  Number(selectedBooking.agencyCommission)
+                ).toFixed(2)}
+              </p>
+              <button
+                className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                onClick={() => setSelectedBooking(null)}
+              >
+                Close
+              </button>
             </div>
           </motion.div>
         )}

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/BookingPage.css";
 import { newBooking } from "../api/booking";
+import { getWeather } from "../api/weather";
+import { split } from "postcss/lib/list";
 
 const BookingPage = () => {
   const { state } = useLocation();
@@ -24,13 +26,22 @@ const BookingPage = () => {
 
   const [formData, setFormData] = useState({
     fullName: "", 
-    email: "",
-    travelers: 1,
-    tripTypeId: "L" // default: Leisure
+    travelers:"",
+    travelerCount: 1,
+    tripTypeId: "L"
+  });
+
+  const [weatherData,setWeatherData] = useState({
+    name:"",
+    country:"",
+    description:"",
+    temp:"",
+    humidity:"",
+    wind:""
   });
 
   const handleChange = (e) => {
-    if(e.target.name == "travelers") {
+    if(e.target.name == "travelerCount") {
       setTotalPrice(tripPrice * Number(e.target.value));
     }
     setFormData({
@@ -39,16 +50,35 @@ const BookingPage = () => {
     });
   };
 
+  const fetchWeather = async (city) => {
+    const data = await getWeather(city);
+    if(data != null) {
+      setWeatherData({
+        name: data.name,
+        country: data.sys.country,
+        description:data.weather[0].description.toUpperCase(),
+        temp:data.main.temp,
+        humidity:data.main.humidity,
+        wind:data.wind.speed,
+      })
+    }
+  }
+
+  useEffect(()=>{
+    const location = destination.split(",");
+    fetchWeather(location[0]);
+  },[])
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const bookingData = {
-      bookingNo: "BKG-" + Math.floor(Math.random() * 100000),
       name,
       destination,
       tripStart: startDate,
       tripEnd: endDate,
-      travelerCount: formData.travelers,
+      travelerCount: formData.travelerCount,
+      travelers: formData.travelers,
       tripTypeId: formData.tripTypeId,
       basePrice,
       agencyCommission,
@@ -56,8 +86,9 @@ const BookingPage = () => {
     };
 
     const res = await newBooking(bookingData,104);
+    console.log(res);
     if(res != null){
-      navigate("/payment", { state: bookingData });
+      navigate("/payment", { state: { bookingNo: res.bookingNo }});
     }
   };
 
@@ -78,6 +109,10 @@ const BookingPage = () => {
       <p><strong>Trip Dates:</strong> {dateFormat(startDate)} to {dateFormat(endDate)}</p>
       <p><strong>Trip Price:</strong> ${tripPrice}</p>
       <p><strong>Total Price:</strong> ${totalPrice}</p>
+      <p><strong>Current Weather:</strong> {weatherData.description},  {weatherData.country}</p>
+      <p>🌡️ Temperature: {weatherData.temp}°C</p>
+      <p>💧 Humidity: {weatherData.humidity}%</p>
+      <p>💨 Wind Speed: {weatherData.speed} m/s</p>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -90,19 +125,19 @@ const BookingPage = () => {
         />
 
         <input
-          type="email"
-          name="email"
-          placeholder="Your Email"
-          value={formData.email}
+          type="number"
+          name="travelerCount"
+          placeholder="Number of Travelers"
+          min="1"
+          value={formData.travelerCount}
           onChange={handleChange}
           required
         />
 
         <input
-          type="number"
+          type="text"
           name="travelers"
-          placeholder="Number of Travelers"
-          min="1"
+          placeholder="Your travelers' name"
           value={formData.travelers}
           onChange={handleChange}
           required
