@@ -13,7 +13,7 @@ const BookingConfirmation = () => {
     const savedBookings = JSON.parse(localStorage.getItem("myBookings")) || [];
     const newBooking = { ...state, savedAt: new Date().toISOString() };
 
-    localStorage.setItem("myBookings", JSON.stringify([...savedBookings, newBooking]));
+    // localStorage.setItem("myBookings", JSON.stringify([...savedBookings, newBooking]));
   }, []);
 
   const {
@@ -27,7 +27,6 @@ const BookingConfirmation = () => {
     basePrice,
     agencyCommission,
     paymentStatus,
-    newWalletBalance
   } = state;
 
   const totalPrice = Number(basePrice) + Number(agencyCommission);
@@ -84,7 +83,7 @@ const BookingConfirmation = () => {
       {paymentStatus === "Paid" && (
         <>
           <hr />
-          <p><strong>Remaining Wallet Balance:</strong> ${newWalletBalance}</p>
+          <p><strong>Remaining Wallet Balance:</strong> 0</p>
         </>
       )}
 

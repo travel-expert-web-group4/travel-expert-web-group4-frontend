@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { motion } from "framer-motion";
 import "../styles/PackageDetails.css";
+import { getReview, reviewPackage } from "../api/package";
 
 const containerStyle = {
   width: "100%",
@@ -35,6 +36,7 @@ const getRelativeTime = (timestamp) => {
   return 'just now';
 };
 
+
 const PackageDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -58,18 +60,22 @@ const PackageDetails = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const reviewSectionRef = useRef(null);
 
-  const [reviews, setReviews] = useState(() => {
-    const saved = localStorage.getItem(`reviews-${packageId}`);
-    return saved ? JSON.parse(saved) : [
-      { name: "Alice", rating: 5, comment: "Absolutely loved it!", timestamp: new Date().toISOString() },
-      { name: "Bob", rating: 4, comment: "Great experience.", timestamp: new Date().toISOString() }
-    ];
-  });
+  const [reviews, setReviews] = useState([]);
+
+  const fetchReviews = async () => {
+    const reviewData = await getReview(packageId);
+    if (reviewData != null) {
+      setReviews(reviewData);
+    }
+  };
+
+  useEffect(()=>{
+    fetchReviews();
+  },[])
 
   const [newReview, setNewReview] = useState({
-    name: "",
     rating: 5,
-    comment: ""
+    review: ""
   });
 
   const averageRating = reviews.length > 0
@@ -83,16 +89,14 @@ const PackageDetails = () => {
     });
   };
 
-  const handleSubmitReview = (e) => {
+  const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (newReview.name && newReview.comment) {
-      const updated = [...reviews, {
-        ...newReview,
-        timestamp: new Date().toISOString()
-      }];
-      setReviews(updated);
-      localStorage.setItem(`reviews-${packageId}`, JSON.stringify(updated));
-      setNewReview({ name: "", rating: 5, comment: "" });
+    if (newReview.review) {
+      const customer = JSON.parse(localStorage.getItem("customer"));
+      await reviewPackage(newReview,packageId,customer.email);
+      fetchReviews();
+      // localStorage.setItem(`reviews-${packageId}`, JSON.stringify(updated));
+      setNewReview({  rating: 5, review: "" });
     }
   };
 
@@ -175,8 +179,8 @@ const PackageDetails = () => {
           .slice(0, showAllReviews ? undefined : 3)
           .map((r, i) => (
             <li key={i}>
-              <strong>{r.name}</strong> - ⭐ {r.rating}<br />
-              <em>{r.comment}</em><br />
+              <strong>***</strong> - ⭐ {r.rating}<br />
+              <em>{r.review}</em><br />
               <small style={{ color: "#666" }}>
                 {r.timestamp ? getRelativeTime(r.timestamp) : ""}
               </small>
@@ -209,14 +213,6 @@ const PackageDetails = () => {
 
       <h3>Leave a Review</h3>
       <form onSubmit={handleSubmitReview}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Your name"
-          value={newReview.name}
-          onChange={handleInputChange}
-          required
-        />
         <select
           name="rating"
           value={newReview.rating}
@@ -229,9 +225,9 @@ const PackageDetails = () => {
           <option value={1}>1 - Poor</option>
         </select>
         <textarea
-          name="comment"
+          name="review"
           placeholder="Your review..."
-          value={newReview.comment}
+          value={newReview.review}
           onChange={handleInputChange}
           required
           rows="4"

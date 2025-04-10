@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/PaymentPage.css";
+import { bookingDetail } from "../api/booking";
+import { checkOutBill } from "../api/payment";
 
 const PaymentPage = () => {
   const { state } = useLocation();
@@ -9,54 +11,53 @@ const PaymentPage = () => {
 
   if (!state) return <p>No payment info found.</p>;
 
-  const {
-    bookingNo,
-    name,
-    destination,
-    tripStart,
-    tripEnd,
-    travelerCount,
-    tripTypeId,
-    basePrice,
-    agencyCommission
-  } = state;
-
-  const totalPrice = Number(basePrice) + Number(agencyCommission);
+  const { bookingNo } = state;
 
   const [walletBalance, setWalletBalance] = useState(2000);
-  const [cardNumber, setCardNumber] = useState("");
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [canAfford, setCanAfford] = useState(true);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [bookingData, setBookingData] = useState({
+    bookingNo: "",
+    agencyCommission: "",
+    basePrice: "",
+    destination: "",
+    name: "",
+    savedAt: "",
+    travelerCount: 0,
+    travelers: "",
+    tripEnd: "",
+    tripStart: "",
+    tripTypeId: "",
+  });
+
+  const getDetail = async (bookingNo) => {
+    const data = await bookingDetail(bookingNo);
+    if (data != null) {
+      setBookingData(data);
+      setTotalPrice((data.basePrice + data.agencyCommission)*data.travelerCount);
+    }
+  };
 
   useEffect(() => {
-    setCanAfford(walletBalance >= totalPrice);
-  }, [walletBalance, totalPrice]);
+    getDetail(bookingNo);
+  }, []);
 
-  const handlePay = (e) => {
+  // useEffect(() => {
+  //   setCanAfford(walletBalance >= totalPrice);
+  // }, [walletBalance, totalPrice]);
+
+  const handlePay = async (e) => {
     e.preventDefault();
-    if (!canAfford) return;
 
     setProcessing(true);
-
-    setTimeout(() => {
-      setProcessing(false);
-      setSuccess(true);
-
-      const newBalance = walletBalance - totalPrice;
-      setWalletBalance(newBalance);
-
-      // Navigate after short animation
-      setTimeout(() => {
-        navigate("/booking-confirmation", {
-          state: {
-            ...state,
-            paymentStatus: "Paid",
-            newWalletBalance: newBalance
-          }
-        });
-      }, 1500);
-    }, 1800);
+    const res = await checkOutBill(bookingData);
+    console.log(res.sessionUrl);
+    if(res != null) {
+      location.href = res.sessionUrl;
+    }
+    setProcessing(false);
   };
 
   return (
@@ -66,42 +67,30 @@ const PaymentPage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2>Payment for Booking #{bookingNo}</h2>
-      <p><strong>Package:</strong> {name}</p>
-      <p><strong>Destination:</strong> {destination}</p>
-      <p><strong>Travelers:</strong> {travelerCount}</p>
-      <p><strong>Total to Pay:</strong> ${totalPrice}</p>
-      <p><strong>Your Wallet Balance:</strong> ${walletBalance}</p>
+      <h2>Payment for Booking #{bookingData.bookingNo}</h2>
+      <p>
+        <strong>Package:</strong> {bookingData.name}
+      </p>
+      <p>
+        <strong>Destination:</strong> {bookingData.destination}
+      </p>
+      <p>
+        <strong>Travelers:</strong> {bookingData.travelerCount}
+      </p>
+      <p>
+        <strong>Total to Pay:</strong> ${totalPrice}
+      </p>
+      {/* <p>
+        <strong>Your Wallet Balance:</strong> ${walletBalance}
+      </p>
 
       {!canAfford && (
         <p className="error-text">
           Insufficient funds! You need more money to complete this booking.
         </p>
-      )}
+      )} */}
 
-      <form onSubmit={handlePay}>
-        <label htmlFor="cardNumber"><strong>Card Number:</strong></label>
-        <div className="card-input-wrapper">
-          <span className="card-icon">💳</span>
-          <input
-            id="cardNumber"
-            type="text"
-            maxLength="16"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
-            placeholder="1234 5678 9012 3456"
-            required
-          />
-        </div>
-
-        <small>
-          * This is a simulation. No actual payment is processed.
-        </small>
-
-        <button
-          type="submit"
-          disabled={processing || !canAfford}
-        >
+        <button onClick={handlePay} disabled={processing || !canAfford}>
           {processing ? (
             <>
               <span className="spinner"></span> Processing...
@@ -113,8 +102,6 @@ const PaymentPage = () => {
         <button className="later" onClick={() => navigate(`/my-bookings`)}>
           Pay it later
         </button>
-      </form>
-
       {success && (
         <motion.div
           className="success-message"

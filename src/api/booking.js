@@ -14,7 +14,7 @@ export const newBooking = async (bookingData, customerId) => {
         body: JSON.stringify({
           ...bookingData,
           saveAt: new Date().toLocaleString(),
-          travelers: ""
+          bookingDate: null,
         }),
       }
     );
@@ -68,4 +68,22 @@ export const deleteBooking = async (bookingNo) => {
     return false;
   }
 };
+
+// booking detail
+export const bookingDetail = async (bookingNo) => {
+  try {
+    const res = await fetch(`${BASE_URL}/booking/${bookingNo}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        token: "111",
+      },
+    });
+    if (!res.ok) throw new Error("Failed to get booking detail");
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching booking:", error);
+    return false;
+  }
+}
 
