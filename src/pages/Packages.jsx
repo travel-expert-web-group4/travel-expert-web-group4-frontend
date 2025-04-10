@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaTh, FaList } from "react-icons/fa";
 
+const API_BASE_URL = "http://localhost:8080"; // Backend image server
+
 const Packages = () => {
   const [packages, setPackages] = useState([]);
   const [error, setError] = useState(null);
@@ -23,7 +25,7 @@ const Packages = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch("http://localhost:8080/api/package")
+    fetch(`${API_BASE_URL}/api/package`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load packages");
         return res.json();
@@ -205,7 +207,11 @@ const Packages = () => {
               transition={{ duration: 0.3 }}
             >
               <img
-                src={pkg.imageUrl || "https://source.unsplash.com/400x250/?travel"}
+                src={
+                  pkg.imageUrl
+                    ? `${API_BASE_URL}${pkg.imageUrl}`
+                    : "https://source.unsplash.com/400x250/?travel"
+                }
                 alt={pkg.name}
                 className="w-full h-[200px] object-cover rounded"
               />
