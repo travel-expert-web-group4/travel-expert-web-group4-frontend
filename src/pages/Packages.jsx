@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaTh, FaList } from "react-icons/fa";
 
-const API_BASE_URL = "http://localhost:8080"; // Backend image server
+const API_BASE_URL = "http://localhost:8080"; 
 
 const Packages = () => {
   const [packages, setPackages] = useState([]);
