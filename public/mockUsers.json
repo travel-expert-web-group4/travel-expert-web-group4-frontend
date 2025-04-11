@@ -6,7 +6,7 @@
     "firstName": "Laetia",
     "lastName": "Enison",
     "role": "customer",
-    "profileImage": "/uploads/Laetia_Enison.jpg",
+    "profileImage": "/images/customers/Laetia_Enison.jpg",  
     "points": 15080,
     "agent": false,
     "customer": {
