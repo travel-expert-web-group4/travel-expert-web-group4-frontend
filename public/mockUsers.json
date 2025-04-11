@@ -1,74 +1,60 @@
 [
   {
     "id": 1,
-    "email": "jane.bronze@example.com",
-    "password": "bronze123",
-    "fullName": "Jane Bronze",
-    "role": "frequent-bronze",
-    "points": 6000,
-    "profileImage": "",
-    "isAgent": false
-  },
-  {
-    "id": 2,
-    "email": "john.platinum@example.com",
-    "password": "platinum123",
-    "fullName": "John Platinum",
-    "role": "frequent-platinum",
-    "points": 22000,
-    "profileImage": "",
-    "isAgent": false
-  },
-  {
-    "id": 3,
-    "email": "guest.user@example.com",
-    "password": "guest123",
-    "fullName": "Guest User",
-    "role": "guest",
-    "points": 0,
-    "profileImage": "",
-    "isAgent": false
-  },
-  {
-    "id": 4,
-    "email": "alex.agent@example.com",
-    "password": "agent123",
-    "fullName": "Alex Agent",
-    "role": "agent",
-    "points": 15000,
-    "profileImage": "",
-    "isAgent": true
-  },
-  {
-    "id": 104,
     "email": "laetia@example.com",
     "password": "test123",
     "firstName": "Laetia",
     "lastName": "Enison",
-    "role": "customer"
-  },
-  {
-    "id": 144,
-    "email": "agent1@example.com",
-    "password": "test123",
-    "firstName": "agent1",
-    "lastName": "agent1",
-    "role": "agent"
-  },
-  {
-    "id": 145,
-    "email": "john.coville@travelexperts.com",
-    "password": "test123",
-    "firstName": "John",
-    "lastName": "Coville",
-    "role": "agent"
+    "role": "customer",
+    "profileImage": "/images/customers/Laetia_Enison.jpg",  
+    "points": 15080,
+    "agent": false,
+    "customer": {
+      "id": 104,
+      "custfirstname": "Laetia",
+      "custlastname": "Enison",
+      "custaddress": "615 6 Ave Se",
+      "custcity": "Calgary",
+      "custprov": "AB",
+      "custpostal": "T3H 4K8",
+      "custcountry": "Canada",
+      "custhomephone": "4032791223",
+      "custbusphone": "4032557865",
+      "custemail": "laetia192@gmail.com",
+      "agentid": {
+        "id": 4,
+        "agtfirstname": "John",
+        "agtmiddleinitial": null,
+        "agtlastname": "Coville",
+        "agtbusphone": "(403) 210-7823",
+        "agtemail": "john.coville@travelexperts.com",
+        "agtposition": "Intermediate Agent",
+        "agencyid": {
+          "id": 1,
+          "agncyaddress": "1155 8th Ave SW",
+          "agncycity": "Calgary",
+          "agncyprov": "AB",
+          "agncypostal": "T2P1N3",
+          "agncycountry": "Canada",
+          "agncyphone": "4032719873",
+          "agncyfax": "4032719872"
+        },
+        "status": "approved",
+        "profileImageUrl": null,
+        "role": "agent"
+      }
+    },
+    "reviews": [
+      {
+        "id": 1,
+        "rating": 3,
+        "review": "Fun but too expensive!"
+      },
+      {
+        "id": 2,
+        "rating": 5,
+        "review": "Very enjoyable, would recommend!"
+      }
+    ]
   }
-
-
-
-
-
-  
-  
-  
 ]
