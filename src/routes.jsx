@@ -88,6 +88,7 @@ function AppRoutes() {
           }
         />
       </Routes>
+          
 
       <Footer />
       <ChatWidget />

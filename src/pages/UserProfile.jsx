@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import AddressAutocomplete from '../components/AddressAutocomplete';
 import InputField from '../components/InputField';
+import { Link } from 'react-router-dom'; 
 
 import {
   updateCustomerAddress,
@@ -357,6 +358,13 @@ const UserProfile = ({ user }) => {
   )}
 
   <p><strong>Role:</strong> {user.role || (user.agent ? 'Agent' : 'Customer')}</p>
+  <Link
+  to="/chat"
+  className="inline-block mt-2 text-blue-600 hover:underline text-sm"
+>
+  💬 Go to Chat
+</Link>
+
 </div>
 
       </div>
