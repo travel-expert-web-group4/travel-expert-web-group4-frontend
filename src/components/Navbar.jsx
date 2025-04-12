@@ -29,7 +29,7 @@ const Navbar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const handleMenuItemClick = () => setDropdownOpen(false);
-
+ 
   useEffect(() => {
     const isHome = location.pathname === "/";
 
@@ -61,7 +61,7 @@ const Navbar = () => {
 
   // ✅ NEW: Recalculate role/display name on every render
   const displayName = user?.fullName || user?.username || user?.sub || "User";
-  const userRole = user?.role?.toLowerCase() || "guest";
+  const userRole = user?.role?.replace("ROLE_", "").toLowerCase() || "guest";
 
   return (
     <nav
