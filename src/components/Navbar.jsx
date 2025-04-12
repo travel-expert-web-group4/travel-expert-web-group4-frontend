@@ -1,5 +1,6 @@
+// src/components/Navbar.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../contexts/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,12 +17,14 @@ import {
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navRef = useRef(null);
   const dropdownRef = useRef(null);
-  const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -48,7 +51,6 @@ const Navbar = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("scroll", handleScroll);
-
     handleScroll();
 
     return () => {
@@ -56,6 +58,10 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [location]);
+
+  // ✅ NEW: Recalculate role/display name on every render
+  const displayName = user?.fullName || user?.username || user?.sub || "User";
+  const userRole = user?.role?.toLowerCase() || "guest";
 
   return (
     <nav
@@ -112,14 +118,14 @@ const Navbar = () => {
               >
                 <img
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    user.fullName
+                    displayName
                   )}&background=0D8ABC&color=fff&size=32`}
                   alt="avatar"
                   className="w-8 h-8 rounded-full"
                 />
                 <span className="text-sm font-medium">
-                  {user.fullName}{" "}
-                  <span className="text-gray-500 font-normal">({user.role})</span>
+                  {displayName}{" "}
+                  <span className="text-gray-500 font-normal">({userRole})</span>
                 </span>
                 <FontAwesomeIcon
                   icon={faChevronDown}
@@ -129,7 +135,6 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* Dropdown Menu */}
               <ul
                 className={`absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-xl z-50 transform transition-all duration-200 origin-top divide-y divide-gray-100 ${
                   dropdownOpen
@@ -137,7 +142,7 @@ const Navbar = () => {
                     : "scale-95 opacity-0 pointer-events-none"
                 }`}
               >
-                {user.role === "customer" && (
+                {userRole === "customer" && (
                   <li>
                     <Link
                       to="/profile"
@@ -179,7 +184,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 </li>
-                {user.role === "agent" && (
+                {userRole === "agent" && (
                   <li>
                     <Link
                       to="/agent-tools"
@@ -195,6 +200,7 @@ const Navbar = () => {
                   <button
                     onClick={() => {
                       logout();
+                      navigate("/login");
                       handleMenuItemClick();
                     }}
                     className="flex items-center w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-100 border-t transition"
