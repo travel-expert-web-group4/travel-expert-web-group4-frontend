@@ -25,14 +25,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = (newToken) => {
     try {
-      const decoded = jwtDecode(newToken);
-      localStorage.setItem("jwt_token", newToken);
-      setToken(newToken);
+      if (!newToken || typeof newToken !== "string") {
+        throw new Error("Token is missing or not a valid string.");
+      }
+  
+      // ✂️ Remove "Bearer " prefix (if present)
+      const cleanToken = newToken.startsWith("Bearer ")
+        ? newToken.slice(7)
+        : newToken;
+  
+      // 🧾 Decode token payload
+      const decoded = jwtDecode(cleanToken);
+  
+      // 🗃 Save token locally
+      localStorage.setItem("jwt_token", cleanToken);
+  
+      // 🧠 Update AuthContext states
+      setToken(cleanToken);
       setUser(decoded);
     } catch (error) {
-      console.error("Login failed: Invalid JWT token.", error);
+      console.error("Login failed:", error.message);
     }
   };
+  
 
   const logout = () => {
     localStorage.removeItem("jwt_token");

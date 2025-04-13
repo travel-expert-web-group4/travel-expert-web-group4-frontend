@@ -29,7 +29,7 @@ const Navbar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const handleMenuItemClick = () => setDropdownOpen(false);
- 
+
   useEffect(() => {
     const isHome = location.pathname === "/";
 
@@ -59,9 +59,15 @@ const Navbar = () => {
     };
   }, [location]);
 
-  // ✅ NEW: Recalculate role/display name on every render
-  const displayName = user?.fullName || user?.username || user?.sub || "User";
-  const userRole = user?.role?.replace("ROLE_", "").toLowerCase() || "guest";
+  // ✅ Display user role from token or fallback
+  const displayName =
+    user?.customer?.custfirstname && user?.customer?.custlastname
+      ? `${user.customer.custfirstname} ${user.customer.custlastname}`
+      : user?.sub || "User";
+
+  const userRole =
+    user?.role?.replace("ROLE_", "").toLowerCase() ||
+    (user?.customer ? "customer" : "guest");
 
   return (
     <nav
@@ -76,13 +82,17 @@ const Navbar = () => {
           <img src={logo} alt="Logo" className="h-8 sm:h-10" />
           <div className="flex flex-col leading-tight">
             <span className="text-xl font-bold tracking-wide">Travel Tales</span>
-            <span className="text-xs text-gray-300 animate-fade-in">Explore. Dream. Discover.</span>
+            <span className="text-xs text-gray-300 animate-fade-in">
+              Explore. Dream. Discover.
+            </span>
           </div>
         </div>
 
         {/* Mobile toggle */}
         <div className="md:hidden">
-          <button onClick={toggleMenu} className="text-white text-2xl">☰</button>
+          <button onClick={toggleMenu} className="text-white text-2xl">
+            ☰
+          </button>
         </div>
 
         {/* Navigation Links */}
@@ -142,6 +152,7 @@ const Navbar = () => {
                     : "scale-95 opacity-0 pointer-events-none"
                 }`}
               >
+                {/* ✅ Show My Profile for customer */}
                 {userRole === "customer" && (
                   <li>
                     <Link
@@ -154,6 +165,7 @@ const Navbar = () => {
                     </Link>
                   </li>
                 )}
+
                 <li>
                   <Link
                     to="/wallet"
@@ -184,6 +196,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 </li>
+
                 {userRole === "agent" && (
                   <li>
                     <Link
@@ -196,6 +209,7 @@ const Navbar = () => {
                     </Link>
                   </li>
                 )}
+
                 <li>
                   <button
                     onClick={() => {

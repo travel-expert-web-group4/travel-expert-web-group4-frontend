@@ -6,53 +6,61 @@ import Spinner from "../components/Spinner";
 import logoBase64 from "../utils/logoBase64";
 import { bookingList, deleteBooking } from "../api/booking";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext"; // ✅ Use AuthContext
 
-const ITEMS_PER_PAGE = 4; // Number of bookings to show per page
+const ITEMS_PER_PAGE = 4;
 
 const MyBookings = () => {
-  // 📦 State declarations
-  const [bookings, setBookings] = useState([]); // Full booking list from API
-  const [filteredBookings, setFilteredBookings] = useState([]); // After filters/sorting
-  const [sortOption, setSortOption] = useState(""); // Sorting dropdown
-  const [filterDestination, setFilterDestination] = useState(""); // Destination filter
-  const [searchQuery, setSearchQuery] = useState(""); // Search input
-  const [selectedBooking, setSelectedBooking] = useState(null); // For modal display
-  const [loading, setLoading] = useState(true); // Spinner toggle
-  const [currentPage, setCurrentPage] = useState(1); // Pagination
+  const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [sortOption, setSortOption] = useState("");
+  const [filterDestination, setFilterDestination] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
-  const customerId = 104; // Temporary hardcoded customer ID
+  const { user, isAuthenticated } = useAuth();
+  const customerId = user?.id;
 
-  // 🔄 Load bookings from API on component mount
+  // ⛔ Handle unauthenticated users early
+  if (!isAuthenticated || !customerId) {
+    return (
+      <div className="p-4 max-w-2xl mx-auto text-center">
+        <h2 className="text-2xl font-bold mb-4">My Bookings</h2>
+        <p className="text-gray-600">Please log in to view your bookings.</p>
+      </div>
+    );
+  }
+
+  // 🔄 Fetch bookings after login
   useEffect(() => {
     bookingList(customerId)
       .then((data) => {
-        if (data) {
-          setBookings(data); // Store full list
-        } else {
+        setBookings(data || []);
+        if (!data || data.length === 0) {
           toast.error("No bookings found.");
         }
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error loading bookings:", err);
-        toast.error("Something went wrong while loading bookings.");
+        console.error("Booking fetch error:", err);
+        toast.error("Failed to load bookings.");
         setLoading(false);
       });
-  }, []);
+  }, [customerId]);
 
-  // 🧹 Apply filters, search, and sort every time bookings or filters change
+  // 🧹 Filtering, Searching, Sorting
   useEffect(() => {
     let updated = [...bookings];
 
-    // Filter by destination
     if (filterDestination) {
       updated = updated.filter((b) =>
         b.destination.toLowerCase().includes(filterDestination.toLowerCase())
       );
     }
 
-    // Search by bookingNo, name, or destination
     if (searchQuery) {
       updated = updated.filter(
         (b) =>
@@ -62,7 +70,6 @@ const MyBookings = () => {
       );
     }
 
-    // Sort bookings
     if (sortOption === "date") {
       updated.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
     } else if (sortOption === "destination") {
@@ -81,10 +88,10 @@ const MyBookings = () => {
     }
 
     setFilteredBookings(updated);
-    setCurrentPage(1); // Reset page on filter change
+    setCurrentPage(1);
   }, [bookings, sortOption, filterDestination, searchQuery]);
 
-  // 🏷️ Convert trip type code to readable label
+  // 🏷️ Trip type helper
   const getTripTypeLabel = (code) => {
     switch (code) {
       case "L":
@@ -98,7 +105,7 @@ const MyBookings = () => {
     }
   };
 
-  // 🧾 Generate PDF invoice using jsPDF
+  // 🧾 PDF Invoice Generator
   const generateInvoice = (booking) => {
     const {
       bookingNo,
@@ -117,77 +124,49 @@ const MyBookings = () => {
 
     doc.addImage(logoBase64, "PNG", 150, 10, 40, 20);
     doc.setFontSize(18);
-    doc.setTextColor(40, 40, 40);
     doc.text("Travel Experts - Booking Invoice", 20, 30);
-    doc.setLineWidth(0.5);
     doc.line(20, 33, 190, 33);
 
-    // 🧾 Booking details
     doc.setFontSize(12);
     let y = 45;
     const spacing = 10;
 
-    doc.text(`Booking No:`, 20, y);
-    doc.text(bookingNo, 80, y);
+    doc.text(`Booking No: ${bookingNo}`, 20, y);
     y += spacing;
-
-    doc.text(`Package:`, 20, y);
-    doc.text(name, 80, y);
+    doc.text(`Package: ${name}`, 20, y);
     y += spacing;
-
-    doc.text(`Destination:`, 20, y);
-    doc.text(destination, 80, y);
+    doc.text(`Destination: ${destination}`, 20, y);
     y += spacing;
-
-    doc.text(`Trip Dates:`, 20, y);
     doc.text(
-      `${new Date(tripStart).toLocaleDateString()} to ${new Date(
+      `Trip Dates: ${new Date(tripStart).toLocaleDateString()} - ${new Date(
         tripEnd
       ).toLocaleDateString()}`,
-      80,
+      20,
       y
     );
     y += spacing;
-
-    doc.text(`Travelers:`, 20, y);
-    doc.text(String(travelerCount), 80, y);
+    doc.text(`Travelers: ${travelerCount}`, 20, y);
     y += spacing;
-
-    doc.text(`Trip Type:`, 20, y);
-    doc.text(getTripTypeLabel(tripTypeId), 80, y);
+    doc.text(`Trip Type: ${getTripTypeLabel(tripTypeId)}`, 20, y);
     y += spacing;
-
-    doc.text(`Base Price:`, 20, y);
-    doc.text(`$${basePrice}`, 80, y);
+    doc.text(`Base Price: $${basePrice}`, 20, y);
     y += spacing;
-
-    doc.text(`Agency Commission:`, 20, y);
-    doc.text(`$${agencyCommission}`, 80, y);
-    y += spacing;
-
-    doc.setDrawColor(100);
-    doc.line(20, y + 3, 190, y + 3);
-    y += spacing + 3;
-
+    doc.text(`Agency Commission: $${agencyCommission}`, 20, y);
+    y += spacing + 2;
     doc.setFontSize(14);
-    doc.setTextColor(30, 30, 120);
     doc.text(`Total Paid: $${totalPrice}`, 20, y);
-    y += spacing + 5;
 
     doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, y);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, y + 10);
 
     doc.save(`invoice-${bookingNo}.pdf`);
     toast.success("Invoice downloaded.");
   };
 
-  // 🗑️ Handle delete with confirmation
+  // 🗑️ Booking deletion
   const handleDelete = async (bookingNo) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this booking?"
-    );
-    if (!confirmed) return;
+    const confirm = window.confirm("Are you sure you want to delete this booking?");
+    if (!confirm) return;
 
     const success = await deleteBooking(bookingNo);
     if (success) {
@@ -198,7 +177,7 @@ const MyBookings = () => {
     }
   };
 
-  // 🔢 Pagination logic
+  // 🔢 Pagination
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
   const paginatedBookings = filteredBookings.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -206,7 +185,7 @@ const MyBookings = () => {
   );
 
   const payNow = (bookingNo) => {
-    navigate("/payment", { state: { bookingNo: bookingNo } });
+    navigate("/payment", { state: { bookingNo } });
   };
 
   return (

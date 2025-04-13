@@ -34,6 +34,8 @@ function AppRoutes() {
   return (
     <>
       <Navbar />
+      
+      <main className="pt-20 px-4 min-h-screen bg-white text-gray-800">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -89,7 +91,7 @@ function AppRoutes() {
 />
       </Routes>
           
-
+      </main>
       <Footer />
       <ChatWidget />
     </>
