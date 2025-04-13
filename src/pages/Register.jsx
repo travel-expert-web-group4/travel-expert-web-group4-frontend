@@ -1,91 +1,168 @@
-import React, { useState } from 'react';
-import { registerUser } from '../api/webUser'; // Adjust path if needed
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    homePhone: '',
-    busPhone: '',
-    address: '',
-    city: '',
-    province: '',
-    postal: '',
-    country: '',
-    password: '',
-    confirmPassword: '',
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const [message, setMessage] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "password") {
+      evaluatePasswordStrength(value);
+    }
+  };
+
+  const evaluatePasswordStrength = (pwd) => {
+    if (!pwd) {
+      setPasswordStrength("");
+    } else if (pwd.length < 6) {
+      setPasswordStrength("Weak");
+    } else if (
+      pwd.match(/[a-z]/) &&
+      pwd.match(/[A-Z]/) &&
+      pwd.match(/[0-9]/) &&
+      pwd.length >= 8
+    ) {
+      setPasswordStrength("Strong");
+    } else {
+      setPasswordStrength("Moderate");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setMessage('❌ Passwords do not match');
-      setSuccess(false);
+      toast.error("❌ Passwords do not match.");
       return;
     }
 
+    setSubmitting(true);
+
     try {
-      await registerUser(formData);
-      setMessage('✅ Registration successful!');
-      setSuccess(true);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        homePhone: '',
-        busPhone: '',
-        address: '',
-        city: '',
-        province: '',
-        postal: '',
-        country: '',
-        password: '',
-        confirmPassword: '',
+      const formBody = new URLSearchParams();
+      formBody.append("email", formData.email);
+      formBody.append("password", formData.password);
+
+      const res = await fetch("http://localhost:8080/api/user/register-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formBody.toString(),
       });
-    } catch (error) {
-      console.error('Registration error:', error);
-      setMessage('❌ Registration failed. Please try again.');
-      setSuccess(false);
+
+      if (res.status === 201) {
+        toast.success("✅ Registered successfully! Redirecting...");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        const errorText = await res.text();
+        toast.error(`❌ ${errorText}`);
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      toast.error("Something went wrong.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md border border-gray-200">
-      <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">Register</h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Left column */}
-        <input name="firstName" placeholder="First Name" value={formData.firstName} onChange={handleChange} required className="p-2 border rounded" />
-        <input name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleChange} required className="p-2 border rounded" />
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required className="p-2 border rounded" />
-        <input name="homePhone" placeholder="Home Phone" value={formData.homePhone} onChange={handleChange} className="p-2 border rounded" />
-        <input name="busPhone" placeholder="Business Phone" value={formData.busPhone} onChange={handleChange} className="p-2 border rounded" />
-        <input name="address" placeholder="Street Address" value={formData.address} onChange={handleChange} className="p-2 border rounded" />
-        <input name="city" placeholder="City" value={formData.city} onChange={handleChange} className="p-2 border rounded" />
-        <input name="province" placeholder="Province" value={formData.province} onChange={handleChange} className="p-2 border rounded" />
-        <input name="postal" placeholder="Postal Code" value={formData.postal} onChange={handleChange} className="p-2 border rounded" />
-        <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} className="p-2 border rounded" />
-        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required className="p-2 border rounded" />
-        <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required className="p-2 border rounded" />
+    <div className="max-w-md mx-auto p-6 mt-10 border rounded shadow bg-white">
+      <Toaster position="top-center" />
+      <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email Field */}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="w-full border px-3 py-2 rounded"
+        />
 
-        <button type="submit" className="col-span-1 md:col-span-2 bg-blue-600 text-white font-semibold p-2 rounded hover:bg-blue-700 transition">
-          Register
+        {/* Password Field */}
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 rounded pr-10"
+          />
+          <span
+            onClick={togglePasswordVisibility}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
+            title="Toggle password visibility"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
+        {/* Password Strength Meter */}
+        {passwordStrength && (
+          <p
+            className={`text-sm ${
+              passwordStrength === "Strong"
+                ? "text-green-600"
+                : passwordStrength === "Moderate"
+                ? "text-yellow-600"
+                : "text-red-600"
+            }`}
+          >
+            Password Strength: {passwordStrength}
+          </p>
+        )}
+
+        {/* Confirm Password Field */}
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 rounded pr-10"
+          />
+          <span
+            onClick={togglePasswordVisibility}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
+            title="Toggle password visibility"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          {submitting ? "Registering..." : "Register"}
         </button>
       </form>
-
-      {message && (
-        <p className={`mt-4 text-center font-medium ${success ? 'text-green-600' : 'text-red-500'}`}>
-          {message}
-        </p>
-      )}
     </div>
   );
 };

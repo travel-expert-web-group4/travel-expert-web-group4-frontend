@@ -22,18 +22,20 @@ import ChatPage from "./pages/ChatPage";
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import ProtectedRoute from "./components/ProtectedRoute";
+import PrivateRoute from "./components/PrivateRoute";
 import ChatWidget from './components/ChatWidget'; 
 
 // ✅ Bring in user from AuthContext
 import { useAuth } from './contexts/AuthContext';
 
 function AppRoutes() {
-  const { user } = useAuth(); // ✅ Get user from context
+  const { token } = useAuth();// ✅ Get user from context
 
   return (
     <>
       <Navbar />
+      
+      <main className="pt-20 px-4 min-h-screen bg-white text-gray-800">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -50,45 +52,46 @@ function AppRoutes() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <PrivateRoute>
               <DashboardPage />
-            </ProtectedRoute>
+            </PrivateRoute>
           }
         />
         <Route
           path="/agent-profile"
           element={
-            <ProtectedRoute allowedRoles={['agent']}>
+            <PrivateRoute allowedRoles={['agent']}>
               <AgentProfile />
-            </ProtectedRoute>
+            </PrivateRoute>
           }
         />
         <Route
           path="/wallet"
           element={
-            <ProtectedRoute allowedRoles={["guest", "frequent-bronze", "frequent-platinum", "agent"]}>
+            <PrivateRoute allowedRoles={["guest", "frequent-bronze", "frequent-platinum", "agent"]}>
               <WalletPage />
-            </ProtectedRoute>
+            </PrivateRoute>
           }
         />
         <Route
           path="/my-bookings"
           element={
-            <ProtectedRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
+            <PrivateRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
               <MyBookings />
-            </ProtectedRoute>
+            </PrivateRoute>
           }
         />
         <Route
-          path="/profile"
-          element={
-            <ProtectedRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
-              <UserProfile user={user} /> {/* ✅ Now user is passed in */}
-            </ProtectedRoute>
-          }
-        />
+  path="/profile"
+  element={
+    <PrivateRoute allowedRoles={["customer", "frequent-bronze", "frequent-platinum"]}>
+      <UserProfile />
+    </PrivateRoute>
+  }
+/>
       </Routes>
-
+          
+      </main>
       <Footer />
       <ChatWidget />
     </>

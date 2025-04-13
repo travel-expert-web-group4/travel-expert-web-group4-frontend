@@ -1,81 +1,132 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import "../styles/Login.css";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { motion } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const redirectTo = location.state?.from?.pathname || "/profile";
-
-
-  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-  
-    const res = await fetch("/mockUsers.json");
-    const users = await res.json();
-  
-    const user = users.find(
-      (u) => u.email === formData.email && u.password === formData.password
-    );
-  
-    if (!user) {
-      setError("Invalid email or password.");
-      return;
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData),
+      });
+
+      if (!response.ok) {
+        const msg = await response.text();
+        throw new Error(msg || "Login failed");
+      }
+
+      const token = await response.text();
+      login(token);
+      toast.success("✅ Logged in successfully!");
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
-  
-    // Add fullName field for Navbar & profile
-    login({
-      ...user,
-      fullName: `${user.firstName} ${user.lastName}`
-    });
-  
-    navigate(redirectTo, { replace: true }); // goes to /profile or where user was before
   };
-  
-  
-  
 
   return (
-    <div className="login-container">
-      <h2>🔐 Sign In</h2>
-      {error && <p className="error">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-sky-200 to-blue-400 px-4">
+      <ToastContainer />
+      <motion.form
+        onSubmit={handleLogin}
+        className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full space-y-6"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-2xl font-bold text-center text-blue-700">
+          Travel Experts Login
+        </h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email address"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          <input
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            placeholder="you@example.com"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+        <div className="relative">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formData.password}
+            onChange={handleChange}
+            required
+            placeholder="Enter password"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:outline-none"
+          />
+          <span
+            className="absolute right-3 top-9 text-gray-500 cursor-pointer"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
 
-        <button type="submit">Sign In</button>
-      </form>
+        {error && (
+          <motion.div
+            className="text-red-600 text-sm font-medium"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            ❌ {error}
+          </motion.div>
+        )}
 
-      <p className="login-footer">
-        Don't have an account? <a href="/register">Register here</a>
-      </p>
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full ${
+            loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+          } text-white py-2 rounded-md transition`}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+
+        <p className="text-center text-sm text-gray-600 mt-2">
+          Don&apos;t have an account?{" "}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register here
+          </a>
+        </p>
+      </motion.form>
     </div>
   );
 };
 
 export default Login;
+  
