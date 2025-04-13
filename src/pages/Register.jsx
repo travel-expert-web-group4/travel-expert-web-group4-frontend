@@ -56,7 +56,7 @@ const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("❌ Passwords do not match.");
+      toast.error(" Passwords do not match.");
       return;
     }
 
@@ -114,7 +114,7 @@ const Register = () => {
         }
       } else {
         const errorText = await res.text();
-        toast.error(`❌ ${errorText}`);
+        toast.error(` ${errorText}`);
       }
     } catch (err) {
       console.error("Registration error:", err);
