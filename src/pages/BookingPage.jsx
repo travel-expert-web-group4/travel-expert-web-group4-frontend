@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import "../styles/BookingPage.css";
 import { newBooking } from "../api/booking";
 import { getWeather } from "../api/weather";
-import { split } from "postcss/lib/list";
+import { useAuth } from "../contexts/AuthContext";
 
 const BookingPage = () => {
   const { state } = useLocation();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const customerId = user?.id;
 
   const {
     packageId,
@@ -85,8 +87,7 @@ const BookingPage = () => {
       packageId
     };
 
-    const res = await newBooking(bookingData,104);
-    console.log(res);
+    const res = await newBooking(bookingData,customerId);
     if(res != null){
       navigate("/payment", { state: { bookingNo: res.bookingNo }});
     }

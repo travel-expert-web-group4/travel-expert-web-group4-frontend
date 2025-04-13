@@ -4,16 +4,19 @@ import { motion } from "framer-motion";
 import "../styles/PaymentPage.css";
 import { bookingDetail } from "../api/booking";
 import { checkOutBill } from "../api/payment";
+import { useAuth } from "../contexts/AuthContext";
+
 
 const PaymentPage = () => {
   const { state } = useLocation();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   if (!state) return <p>No payment info found.</p>;
 
   const { bookingNo } = state;
 
-  const [walletBalance, setWalletBalance] = useState(2000);
+  // const [walletBalance, setWalletBalance] = useState(2000);
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [canAfford, setCanAfford] = useState(true);
@@ -32,11 +35,22 @@ const PaymentPage = () => {
     tripTypeId: "",
   });
 
+  const calculateDiscount = (point) => {
+    if(point < 5000) {
+      return 1;
+    } else if(point >= 5000 && point < 20000) {
+      return 0.85;
+    } else if(point >= 20000) {
+      return 0.9;
+    }
+  }
   const getDetail = async (bookingNo) => {
+    const discount = calculateDiscount(user.points);
+    console.log(discount);
     const data = await bookingDetail(bookingNo);
     if (data != null) {
-      setBookingData(data);
-      setTotalPrice((data.basePrice + data.agencyCommission)*data.travelerCount);
+      setBookingData({...data,agencyCommission:data.agencyCommission*discount,basePrice:data.basePrice*discount});
+      setTotalPrice((data.basePrice + data.agencyCommission)*data.travelerCount * discount);
     }
   };
 
@@ -53,7 +67,6 @@ const PaymentPage = () => {
 
     setProcessing(true);
     const res = await checkOutBill(bookingData);
-    console.log(res.sessionUrl);
     if(res != null) {
       location.href = res.sessionUrl;
     }
