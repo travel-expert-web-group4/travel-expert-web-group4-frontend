@@ -39,6 +39,7 @@ const getRelativeTime = (timestamp) => {
 
 
 const PackageDetails = () => {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const { state } = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -139,7 +140,7 @@ const PackageDetails = () => {
       </button>
 
       <h3 style={{ marginTop: "2rem" }}>Location on Map:</h3>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+      <LoadScript googleMapsApiKey={apiKey}>
         <GoogleMap mapContainerStyle={containerStyle} center={{ lat, lng }} zoom={10}>
           <Marker position={{ lat, lng }} />
         </GoogleMap>

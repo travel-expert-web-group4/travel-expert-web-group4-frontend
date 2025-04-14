@@ -4,13 +4,25 @@ import { motion } from "framer-motion";
 import "../styles/BookingPage.css";
 import { newBooking } from "../api/booking";
 import { getWeather } from "../api/weather";
+import toast, { Toaster }  from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
+import { validateName,validateMultipleName} from "../utils/validate"
 
 const BookingPage = () => {
   const { state } = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const customerId = user?.customerId;
+
+  const validateInput = (formData) => {
+    if(!validateName(formData.name)){
+      return false;
+    }
+    if(!validateMultipleName(formData.travelers)){
+      return false;
+    }
+    return true;
+  }
 
   const {
     packageId,
@@ -73,7 +85,6 @@ const BookingPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const bookingData = {
       name,
       destination,
@@ -86,10 +97,13 @@ const BookingPage = () => {
       agencyCommission,
       packageId
     };
-
-    const res = await newBooking(bookingData,customerId);
-    if(res != null){
-      navigate("/payment", { state: { bookingNo: res.bookingNo }});
+    if(validateInput(formData)) {
+      const res = await newBooking(bookingData,customerId);
+      if(res != null){
+        navigate("/booking-confirmation", { state: { bookingNo: res.bookingNo }});
+      }
+    } else {
+      toast.error("please enter valid form data.");
     }
   };
 
@@ -105,6 +119,7 @@ const BookingPage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
+      <Toaster position="top-center" />
       <h2>Book: {name}</h2>
       <p><strong>Destination:</strong> {destination}</p>
       <p><strong>Trip Dates:</strong> {dateFormat(startDate)} to {dateFormat(endDate)}</p>
@@ -113,13 +128,13 @@ const BookingPage = () => {
       <p><strong>Current Weather:</strong> {weatherData.description},  {weatherData.country}</p>
       <p>🌡️ Temperature: {weatherData.temp}°C</p>
       <p>💧 Humidity: {weatherData.humidity}%</p>
-      <p>💨 Wind Speed: {weatherData.speed} m/s</p>
+      <p>💨 Wind Speed: {weatherData.wind} m/s</p>
 
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           name="fullName"
-          placeholder="Your Full Name"
+          placeholder="Booker's Name"
           value={formData.fullName}
           onChange={handleChange}
           required
@@ -128,8 +143,9 @@ const BookingPage = () => {
         <input
           type="number"
           name="travelerCount"
-          placeholder="Number of Travelers"
+          placeholder="Number of Travelers,Maximum member will be 10"
           min="1"
+          max="10"
           value={formData.travelerCount}
           onChange={handleChange}
           required
@@ -138,7 +154,7 @@ const BookingPage = () => {
         <input
           type="text"
           name="travelers"
-          placeholder="Your travelers' name"
+          placeholder="Please separate the customers' name by ,"
           value={formData.travelers}
           onChange={handleChange}
           required

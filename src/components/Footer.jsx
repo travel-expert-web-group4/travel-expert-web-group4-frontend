@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from '../contexts/AuthContext';
 
 const Footer = () => {
+  const { user } = useAuth();
   return (
     <footer className="bg-[#023e93] text-white text-sm">
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 animate-fade-in">
@@ -20,7 +22,7 @@ const Footer = () => {
             <li><Link to="/" className="hover:text-yellow-400">Home</Link></li>
             <li><Link to="/packages" className="hover:text-yellow-400">Packages</Link></li>
             <li><Link to="/contact" className="hover:text-yellow-400">Contact Us</Link></li>
-            <li><Link to="/login" className="hover:text-yellow-400">Sign In</Link></li>
+            {user == null ? <li><Link to="/login" className="hover:text-yellow-400">Sign In</Link></li> : ""}
             <li><Link to="/register" className="hover:text-yellow-400">Register</Link></li>
           </ul>
         </div>
