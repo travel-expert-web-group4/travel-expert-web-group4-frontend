@@ -21,29 +21,23 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchCustomerProfile = async () => {
       try {
-        console.log("👤 user.webUserId:", user?.webUserId); // ✅ ensure correct ID
-        console.log("🔐 JWT token:", token?.slice(0, 20), "...");
-
         const res = await fetch(`${BACKEND_URL}/api/user/${user?.webUserId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("📡 /api/user/{id} response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch WebUser profile");
 
         const userData = await res.json();
-        console.log("✅ WebUser payload:", userData);
 
         setProfileImage(userData.profileImage || null);
         setPoints(userData.points || 0);
 
         const customerData = userData.customer;
-        if (!customerData) throw new Error("Customer info missing in WebUser");
+        if (!customerData) throw new Error("Customer info missing");
 
         setCustomer(customerData);
         setFormData(customerData);
 
-        // ✅ Fetch customer type
         const typeRes = await fetch(`${BACKEND_URL}/api/customer/${customerData.id}/customer-type`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -96,6 +90,52 @@ const UserProfile = () => {
     }
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !customer) return;
+
+    const formDataData = new FormData();
+    formDataData.append("image", file);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/customer/${customer.id}/profile-picture`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formDataData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      setProfileImage(data.profileImage);
+      toast.success("✅ Image uploaded");
+    } catch (err) {
+      console.error("❌ Upload failed:", err);
+      toast.error("❌ Image upload failed");
+    } finally {
+      fileInputRef.current.value = ""; // reset input
+    }
+  };
+
+  const handleDeleteImage = async () => {
+    if (!customer) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/customer/${customer.id}/profile-picture`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      setProfileImage(null);
+      toast.success("🗑️ Image deleted");
+    } catch (err) {
+      console.error("❌ Delete failed:", err);
+      toast.error("❌ Failed to delete image");
+    }
+  };
+
   const getBadgeColor = (type) => {
     switch (type.toLowerCase()) {
       case "bronze": return "bg-yellow-800 text-white";
@@ -112,12 +152,36 @@ const UserProfile = () => {
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded p-6 mt-10">
       <h2 className="text-2xl font-bold text-blue-700 mb-4">My Profile</h2>
+
+      {/* 👤 Profile Image Upload */}
       <div className="flex items-center gap-6 mb-6">
-        <img
-          src={profileImage ? `${BACKEND_URL}${profileImage}` : "/default-avatar.png"}
-          alt="Profile"
-          className="w-24 h-24 rounded-full border"
-        />
+        <div className="relative group w-24 h-24">
+          <img
+            src={profileImage ? `${BACKEND_URL}${profileImage}` : "/default-avatar.png"}
+            alt="Profile"
+            className="w-24 h-24 rounded-full border object-cover"
+            onClick={() => fileInputRef.current.click()}
+            style={{ cursor: "pointer" }}
+            title="Click to change"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          {profileImage && (
+            <button
+              onClick={handleDeleteImage}
+              className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full p-1 hover:bg-red-600"
+              title="Remove image"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
         <div className="flex flex-col text-sm text-gray-700">
           <div>
             <strong>Type:</strong>{" "}
@@ -132,6 +196,7 @@ const UserProfile = () => {
         </div>
       </div>
 
+      {/* 📝 Form */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800">
         {["custfirstname", "custlastname", "custemail", "custhomephone", "custaddress", "custcity", "custprov", "custpostal", "custcountry"].map((field) => (
           <div key={field}>
@@ -151,6 +216,7 @@ const UserProfile = () => {
         ))}
       </div>
 
+      {/* 💾 Save/Cancel */}
       <div className="flex justify-end gap-4 mt-6 items-center">
         {showSavedCheck && <span className="text-green-600 font-semibold">✓ Saved</span>}
         {editMode ? (
