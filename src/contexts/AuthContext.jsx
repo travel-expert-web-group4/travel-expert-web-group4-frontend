@@ -1,6 +1,8 @@
 // src/contexts/AuthContext.jsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { jwtDecode } from "jwt-decode"; 
+import { toast } from "react-hot-toast"; // ✅ For logout notification
+
 
 // Create context
 const AuthContext = createContext();
@@ -48,11 +50,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
   
+  const logoutTimerRef = useRef(null); // ✅ Track logout timeout
 
   const logout = () => {
     localStorage.removeItem("jwt_token");
     setToken("");
     setUser(null);
+  
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+    }
+  
+    toast("👋 Session ended. You’ve been logged out.");
   };
 
   useEffect(() => {
@@ -60,9 +69,26 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = jwtDecode(token);
         setUser(decoded);
+  
+        const expiryTime = decoded.exp * 1000; // ms
+        const now = Date.now();
+        const timeout = expiryTime - now;
+  
+        if (timeout > 0) {
+          logoutTimerRef.current = setTimeout(() => {
+            logout();
+          }, timeout);
+        } else {
+          logout(); // already expired
+        }
       } catch (err) {
         console.error("Error decoding token:", err);
         logout();
+      }
+    } else {
+      // ✅ Token is null or cleared → clear any leftover timer
+      if (logoutTimerRef.current) {
+        clearTimeout(logoutTimerRef.current);
       }
     }
   }, [token]);
