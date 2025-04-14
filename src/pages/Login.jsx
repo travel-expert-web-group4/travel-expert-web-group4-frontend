@@ -36,7 +36,7 @@ const Login = () => {
         throw new Error(msg || "Login failed");
       }
 
-      const token = await response.text();
+      const token = await response.json().then((data) => data.token);
       login(token);
       toast.success("✅ Logged in successfully!");
       navigate("/");
