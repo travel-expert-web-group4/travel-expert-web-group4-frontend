@@ -46,7 +46,6 @@ const PaymentPage = () => {
   }
   const getDetail = async (bookingNo) => {
     const discount = calculateDiscount(user.points);
-    console.log(discount);
     const data = await bookingDetail(bookingNo);
     if (data != null) {
       setBookingData({...data,agencyCommission:data.agencyCommission*discount,basePrice:data.basePrice*discount});
