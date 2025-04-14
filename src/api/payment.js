@@ -1,5 +1,13 @@
 const BASE_URL = "http://localhost:8080/api";
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem("jwt_token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 // checkout
 export const checkOutBill = async (checkData) => {
   try {
@@ -7,10 +15,7 @@ export const checkOutBill = async (checkData) => {
       `${BASE_URL}/stripe/checkout`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "token" : "111",
-        },
+        headers: getAuthHeader(),
         body: JSON.stringify({
           ...checkData
         }),
