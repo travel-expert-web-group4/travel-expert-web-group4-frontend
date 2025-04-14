@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { motion } from "framer-motion";
+import { useAuth } from "../contexts/AuthContext";
 import "../styles/PackageDetails.css";
 import { getReview, reviewPackage } from "../api/package";
 
@@ -39,8 +40,9 @@ const getRelativeTime = (timestamp) => {
 
 const PackageDetails = () => {
   const { state } = useLocation();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
+  
   const {
     packageId,
     name,
@@ -92,8 +94,8 @@ const PackageDetails = () => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (newReview.review) {
-      const customer = JSON.parse(localStorage.getItem("customer"));
-      await reviewPackage(newReview,packageId,customer.email);
+      // const customer = JSON.parse(localStorage.getItem("customer"));
+      await reviewPackage(newReview,packageId,user.sub);
       fetchReviews();
       // localStorage.setItem(`reviews-${packageId}`, JSON.stringify(updated));
       setNewReview({  rating: 5, review: "" });
