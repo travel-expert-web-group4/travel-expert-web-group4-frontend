@@ -10,7 +10,7 @@ const BookingPage = () => {
   const { state } = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const customerId = user?.id;
+  const customerId = user?.customerId;
 
   const {
     packageId,
