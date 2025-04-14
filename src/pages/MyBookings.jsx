@@ -15,7 +15,6 @@ const MyBookings = () => {
   const { user, isAuthenticated, token } = useAuth();
   const navigate = useNavigate();
 
-  const [customerId, setCustomerId] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [sortOption, setSortOption] = useState("");
@@ -48,7 +47,6 @@ const MyBookings = () => {
 
         if (!customer?.id) throw new Error("Customer data missing");
 
-        setCustomerId(customer.id);
 
         const bookingData = await bookingList(customer.id);
         setBookings(bookingData || []);
