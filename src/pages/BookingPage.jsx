@@ -187,6 +187,7 @@
 // };
 
 // export default BookingPage;
+
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -200,10 +201,32 @@ import { validateName, validateMultipleName } from "../utils/validate";
 const BACKEND_URL = "http://localhost:8080";
 
 const BookingPage = () => {
-  const { state } = useLocation();
-  const { user, token } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { user, token } = useAuth();
 
+  const [bookingData, setBookingData] = useState(location.state || null);
+
+  // ✅ Restore from sessionStorage if redirected from login
+  useEffect(() => {
+    if (!bookingData) {
+      const stored = sessionStorage.getItem("bookingData");
+      if (stored) {
+        setBookingData(JSON.parse(stored));
+      } else {
+        navigate("/packages");
+      }
+    }
+  }, [bookingData, navigate]);
+
+  // ✅ Clear once used
+  useEffect(() => {
+    if (bookingData) {
+      sessionStorage.removeItem("bookingData");
+    }
+  }, [bookingData]);
+
+  // ✅ Destructure safely
   const {
     packageId,
     name,
@@ -212,12 +235,12 @@ const BookingPage = () => {
     destination,
     startDate,
     endDate,
-  } = state;
+  } = bookingData || {};
 
   const tripPrice = Number(basePrice) + Number(agencyCommission);
-
   const [customerId, setCustomerId] = useState(null);
   const [totalPrice, setTotalPrice] = useState(tripPrice);
+
   const [formData, setFormData] = useState({
     fullName: "",
     travelers: "",
@@ -235,10 +258,9 @@ const BookingPage = () => {
   });
 
   const validateInput = (formData) => {
-    return validateName(formData.name) && validateMultipleName(formData.travelers);
+    return validateName(formData.fullName) && validateMultipleName(formData.travelers);
   };
 
-  // ✅ Fetch customerId using webUserId (supports agent and customer)
   useEffect(() => {
     const fetchCustomerId = async () => {
       if (!user?.webUserId || !token) return;
@@ -262,9 +284,11 @@ const BookingPage = () => {
   }, [user?.webUserId, token]);
 
   useEffect(() => {
-    const location = destination.split(",");
-    fetchWeather(location[0]);
-  }, []);
+    if (destination) {
+      const location = destination.split(",")[0];
+      fetchWeather(location);
+    }
+  }, [destination]);
 
   const fetchWeather = async (city) => {
     const data = await getWeather(city);
@@ -299,7 +323,7 @@ const BookingPage = () => {
       return;
     }
 
-    const bookingData = {
+    const booking = {
       name,
       destination,
       tripStart: startDate,
@@ -313,7 +337,7 @@ const BookingPage = () => {
     };
 
     if (validateInput(formData)) {
-      const res = await newBooking(bookingData, customerId);
+      const res = await newBooking(booking, customerId);
       if (res != null) {
         navigate("/booking-confirmation", {
           state: { bookingNo: res.bookingNo },
@@ -325,12 +349,11 @@ const BookingPage = () => {
   };
 
   const dateFormat = (date) => {
-    const data = new Date(date);
-    return `${data.getMonth() + 1}/${data.getDate()}/${data.getFullYear()}`;
+    const d = new Date(date);
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
   };
 
-  // 🔄 Show loading until customerId is fetched
-  if (!customerId) {
+  if (!customerId || !bookingData) {
     return (
       <div className="p-6 text-center text-gray-500">⏳ Loading booking form...</div>
     );
@@ -367,7 +390,7 @@ const BookingPage = () => {
         <input
           type="number"
           name="travelerCount"
-          placeholder="Number of Travelers, Maximum 10"
+          placeholder="Number of Travelers (max 10)"
           min="1"
           max="10"
           value={formData.travelerCount}
@@ -378,7 +401,7 @@ const BookingPage = () => {
         <input
           type="text"
           name="travelers"
-          placeholder="Please separate the travelers' names by commas"
+          placeholder="Separate traveler names with commas"
           value={formData.travelers}
           onChange={handleChange}
           required

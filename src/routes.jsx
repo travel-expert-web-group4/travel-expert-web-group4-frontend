@@ -1,3 +1,5 @@
+
+
 // import React from "react";
 // import { Routes, Route } from "react-router-dom";
 
@@ -16,10 +18,10 @@
 // import DashboardPage from "./pages/DashboardPage";
 // import ContactUs from "./pages/ContactUs";
 // import UserProfile from "./pages/UserProfile";
-// import AgentProfile from "./pages/AgentProfile";
-// import ChatPage from "./pages/ChatPage";
+// // import ChatPage from "./pages/ChatPage";
 // import NotFound from "./pages/NotFound";
 // import CustomerRegistration from "./pages/CustomerRegistration";
+// import PaymentSuccess from "./pages/PaymentSuccess";
 
 // // Components
 // import Navbar from "./components/Navbar";
@@ -27,11 +29,11 @@
 // import PrivateRoute from "./components/PrivateRoute";
 // import ChatWidget from "./components/ChatWidget";
 
-// // ✅ Bring in user from AuthContext
+// // Context
 // import { useAuth } from "./contexts/AuthContext";
 
 // function AppRoutes() {
-//   const { token } = useAuth(); // ✅ Get user from context
+//   const { token } = useAuth(); // still available if needed elsewhere
 
 //   return (
 //     <>
@@ -42,81 +44,43 @@
 //           <Route path="/" element={<Home />} />
 //           <Route path="/login" element={<Login />} />
 //           <Route path="/register" element={<Register />} />
+//           <Route path="/customer-registration" element={<CustomerRegistration />} />
 //           <Route path="/packages" element={<Packages />} />
 //           <Route path="/packages/:id" element={<PackageDetails />} />
 //           <Route path="/packages/:id/book" element={<BookingPage />} />
-//           <Route path="/customer-registration" element={<CustomerRegistration />} />
-//           <Route
-//             path="/booking-confirmation"
-//             element={<BookingConfirmation />}
-//           />
+//           <Route path="/booking-confirmation" element={<BookingConfirmation />} />
 //           <Route path="/payment" element={<PaymentPage />} />
 //           <Route path="/email-preview" element={<EmailPreview />} />
 //           <Route path="/contact" element={<ContactUs />} />
-//           <Route path="/chat" element={<ChatPage />} />
+//           {/* <Route path="/chat" element={<ChatPage />} /> */}
+//           <Route path="/payment-success" element={<PaymentSuccess />} />
 
-//           <Route
-//             path="/dashboard"
-//             element={
-//               <PrivateRoute>
-//                 <DashboardPage />
-//               </PrivateRoute>
-//             }
-//           />
-//           <Route
-//             path="/agent-profile"
-//             element={
-//               <PrivateRoute allowedRoles={["agent"]}>
-//                 <AgentProfile />
-//               </PrivateRoute>
-//             }
-//           />
-//           <Route
-//             path="/wallet"
-//             element={
-//               <PrivateRoute
-//                 allowedRoles={[
-//                   "guest",
-//                   "frequent-bronze",
-//                   "frequent-platinum",
-//                   "agent",
-//                 ]}
-//               >
-//                 <WalletPage />
-//               </PrivateRoute>
-//             }
-//           />
-//           <Route
-//             path="/my-bookings"
-//             element={
-//               <PrivateRoute
-//                 allowedRoles={[
-//                   "customer",
-//                   "frequent-bronze",
-//                   "frequent-platinum",
-//                 ]}
-//               >
-//                 <MyBookings />
-//               </PrivateRoute>
-//             }
-//           />
-//           <Route
-//             path="/profile"
-//             element={
-//               <PrivateRoute
-//                 allowedRoles={[
-//                   "customer",
-//                   "frequent-bronze",
-//                   "frequent-platinum",
-//                 ]}
-//               >
-//                 <UserProfile />
-//               </PrivateRoute>
-//             }
-//           />
-//           <Route path="*" element={<NotFound/>} />
+//           {/* Protected Routes */}
+//           <Route path="/dashboard" element={
+//             <PrivateRoute>
+//               <DashboardPage />
+//             </PrivateRoute>
+//           } />
+//           <Route path="/wallet" element={
+//             <PrivateRoute>
+//               <WalletPage />
+//             </PrivateRoute>
+//           } />
+//           <Route path="/my-bookings" element={
+//             <PrivateRoute>
+//               <MyBookings />
+//             </PrivateRoute>
+//           } />
+//           <Route path="/profile" element={
+//             <PrivateRoute>
+//               <UserProfile />
+//             </PrivateRoute>
+//           } />
+
+//           <Route path="*" element={<NotFound />} />
 //         </Routes>
 //       </main>
+
 //       <Footer />
 //       <ChatWidget />
 //     </>
@@ -124,6 +88,8 @@
 // }
 
 // export default AppRoutes;
+
+
 
 import React from "react";
 import { Routes, Route } from "react-router-dom";
@@ -143,10 +109,9 @@ import WalletPage from "./pages/WalletPage";
 import DashboardPage from "./pages/DashboardPage";
 import ContactUs from "./pages/ContactUs";
 import UserProfile from "./pages/UserProfile";
-// import ChatPage from "./pages/ChatPage";
-import NotFound from "./pages/NotFound";
 import CustomerRegistration from "./pages/CustomerRegistration";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import NotFound from "./pages/NotFound";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -158,7 +123,7 @@ import ChatWidget from "./components/ChatWidget";
 import { useAuth } from "./contexts/AuthContext";
 
 function AppRoutes() {
-  const { token } = useAuth(); // still available if needed elsewhere
+  const { isAuthenticated } = useAuth();
 
   return (
     <>
@@ -166,24 +131,30 @@ function AppRoutes() {
 
       <main className="pt-20 px-4 min-h-screen bg-white text-gray-800">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/customer-registration" element={<CustomerRegistration />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/packages/:id" element={<PackageDetails />} />
-          <Route path="/packages/:id/book" element={<BookingPage />} />
-          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/email-preview" element={<EmailPreview />} />
           <Route path="/contact" element={<ContactUs />} />
-          {/* <Route path="/chat" element={<ChatPage />} /> */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
 
           {/* Protected Routes */}
-          <Route path="/dashboard" element={
+          <Route path="/packages/:id/book" element={
             <PrivateRoute>
-              <DashboardPage />
+              <BookingPage />
+            </PrivateRoute>
+          } />
+          <Route path="/booking-confirmation" element={
+            <PrivateRoute>
+              <BookingConfirmation />
+            </PrivateRoute>
+          } />
+          <Route path="/payment" element={
+            <PrivateRoute>
+              <PaymentPage />
             </PrivateRoute>
           } />
           <Route path="/wallet" element={
@@ -201,13 +172,33 @@ function AppRoutes() {
               <UserProfile />
             </PrivateRoute>
           } />
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <DashboardPage />
+            </PrivateRoute>
+          } />
 
+          {/* Optional: protect if needed */}
+          {/* 
+          <Route path="/email-preview" element={
+            <PrivateRoute>
+              <EmailPreview />
+            </PrivateRoute>
+          } />
+          <Route path="/chat" element={
+            <PrivateRoute>
+              <ChatPage />
+            </PrivateRoute>
+          } />
+          */}
+
+          {/* 404 Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
       <Footer />
-      <ChatWidget />
+      {isAuthenticated && <ChatWidget />}
     </>
   );
 }

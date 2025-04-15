@@ -1,6 +1,5 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,8 +11,12 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  const from = location.state?.from?.pathname || "/";
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -39,7 +42,7 @@ const Login = () => {
       const token = await response.json().then((data) => data.token);
       login(token);
       toast.success("✅ Logged in successfully!");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
@@ -60,6 +63,13 @@ const Login = () => {
         <h2 className="text-2xl font-bold text-center text-blue-700">
           Travel Experts Login
         </h2>
+
+        {/* ⚠️ Redirected Message */}
+        {location.state?.from && (
+          <div className="bg-yellow-100 text-yellow-800 text-sm font-medium p-2 rounded-md text-center">
+            ⚠️ Please login to access that page.
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -129,4 +139,3 @@ const Login = () => {
 };
 
 export default Login;
-  
