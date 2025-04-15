@@ -143,7 +143,7 @@ import WalletPage from "./pages/WalletPage";
 import DashboardPage from "./pages/DashboardPage";
 import ContactUs from "./pages/ContactUs";
 import UserProfile from "./pages/UserProfile";
-import ChatPage from "./pages/ChatPage";
+// import ChatPage from "./pages/ChatPage";
 import NotFound from "./pages/NotFound";
 import CustomerRegistration from "./pages/CustomerRegistration";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -177,7 +177,7 @@ function AppRoutes() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/email-preview" element={<EmailPreview />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="/chat" element={<ChatPage />} />
+          {/* <Route path="/chat" element={<ChatPage />} /> */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
 
           {/* Protected Routes */}
