@@ -47,7 +47,6 @@ const MyBookings = () => {
 
         if (!customer?.id) throw new Error("Customer data missing");
 
-
         const bookingData = await bookingList(customer.id);
         setBookings(bookingData || []);
 
@@ -220,13 +219,14 @@ const MyBookings = () => {
               <p><strong>Destination:</strong> {b.destination}</p>
               <p><strong>Trip:</strong> {new Date(b.tripStart).toLocaleDateString()} → {new Date(b.tripEnd).toLocaleDateString()}</p>
               <p><strong>Agent:</strong> {agentName}</p>
-              {/* Status temporarily removed */}
               <p><strong>Total Paid:</strong> ${total.toFixed(2)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => generateInvoice(b)} className="bg-green-600 text-white px-3 py-1 rounded">Invoice</button>
                 <button onClick={() => handleDelete(b.bookingNo)} className="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
                 <button onClick={() => setSelectedBooking(b)} className="bg-blue-600 text-white px-3 py-1 rounded">View Details</button>
-                <button onClick={() => payNow(b.bookingNo)} className="bg-yellow-500 text-white px-3 py-1 rounded">Pay Now</button>
+                {b.bookingDate === null && (
+                  <button onClick={() => payNow(b.bookingNo)} className="bg-yellow-500 text-white px-3 py-1 rounded">Pay Now</button>
+                )}
               </div>
             </motion.div>
           );
@@ -263,7 +263,6 @@ const MyBookings = () => {
               <p><strong>Trip:</strong> {new Date(selectedBooking.tripStart).toLocaleDateString()} → {new Date(selectedBooking.tripEnd).toLocaleDateString()}</p>
               <p><strong>Trip Type:</strong> {getTripTypeLabel(selectedBooking.tripTypeId)}</p>
               <p><strong>Travelers:</strong> {selectedBooking.travelerCount}</p>
-              {/* Status removed */}
               <p><strong>Total:</strong> ${(Number(selectedBooking.basePrice) + Number(selectedBooking.agencyCommission)).toFixed(2)}</p>
               <button onClick={() => setSelectedBooking(null)} className="mt-4 px-4 py-2 bg-gray-600 text-white rounded">Close</button>
             </div>

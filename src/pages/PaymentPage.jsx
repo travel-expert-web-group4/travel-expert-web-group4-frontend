@@ -129,3 +129,123 @@ const PaymentPage = () => {
 };
 
 export default PaymentPage;
+
+
+// import React, { useState, useEffect } from "react";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import { motion } from "framer-motion";
+// import { useAuth } from "../contexts/AuthContext";
+// import { bookingDetail } from "../api/booking";
+// import { checkOutBill } from "../api/payment";
+
+// const PaymentPage = () => {
+//   const { state } = useLocation();
+//   const { user } = useAuth();
+//   const navigate = useNavigate();
+
+//   const [processing, setProcessing] = useState(false);
+//   const [bookingData, setBookingData] = useState(null);
+//   const [totalPrice, setTotalPrice] = useState(0);
+//   const [discountLabel, setDiscountLabel] = useState("0%");
+//   const [priceAfterDiscountPerPerson, setPriceAfterDiscountPerPerson] = useState(0);
+
+//   if (!state || !state.bookingNo) return <p>No payment info found.</p>;
+//   const { bookingNo } = state;
+
+//   const getUserDiscountInfo = (user) => {
+//     let baseDiscount = 0;
+//     let labels = [];
+
+//     const typeId = user?.customer?.customerType?.id || user?.customer?.customer_type_id;
+//     const role = user?.role?.toLowerCase();
+
+//     const customerTypeMap = {
+//       1: { name: "Bronze", discount: 0.15 },
+//       2: { name: "Platinum", discount: 0.10 },
+//       3: { name: "Guest", discount: 0.0 },
+//     };
+
+//     const typeData = customerTypeMap[typeId];
+//     if (typeData) {
+//       baseDiscount = typeData.discount;
+//       if (typeData.name !== "Guest") {
+//         labels.push(`${typeData.discount * 100}% ${typeData.name}`);
+//       }
+//     }
+
+//     if (role === "agent" || role === "role_agent") {
+//       baseDiscount += 0.10;
+//       labels.push("10% Agent");
+//     }
+
+//     return { discountMultiplier: 1 - baseDiscount, labels };
+//   };
+
+//   useEffect(() => {
+//     const fetchDetails = async () => {
+//       const data = await bookingDetail(bookingNo);
+//       if (data) {
+//         setBookingData(data);
+//         const { discountMultiplier, labels } = getUserDiscountInfo(user);
+
+//         const fullPricePerPerson = Number(data.basePrice) + Number(data.agencyCommission);
+//         const discountedPricePerPerson = fullPricePerPerson * discountMultiplier;
+
+//         setPriceAfterDiscountPerPerson(discountedPricePerPerson);
+//         setTotalPrice(discountedPricePerPerson * Number(data.travelerCount));
+//         setDiscountLabel(labels.length > 0 ? labels.join(" + ") : "0%");
+//       }
+//     };
+//     fetchDetails();
+//   }, [bookingNo, user]);
+
+//   const handlePay = async () => {
+//     if (!bookingData) return;
+//     setProcessing(true);
+//     const res = await checkOutBill(bookingData);
+//     if (res?.sessionUrl) {
+//       window.location.href = res.sessionUrl;
+//     }
+//     setProcessing(false);
+//   };
+
+//   if (!bookingData) return <p className="text-center py-10 text-gray-600">Loading booking details...</p>;
+
+//   const { name, destination, basePrice, agencyCommission, travelerCount } = bookingData;
+//   const fullPricePerPerson = Number(basePrice) + Number(agencyCommission);
+
+//   return (
+//     <motion.div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+//       <h2 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+//         <span role="img" aria-label="card">💳</span> Payment for Booking <span className="text-blue-800">#{bookingNo}</span>
+//       </h2>
+
+//       <div className="space-y-2 text-sm text-gray-800 mb-4">
+//         <p><strong className="text-gray-700">📦 Package:</strong> {name}</p>
+//         <p><strong className="text-gray-700">📍 Destination:</strong> {destination}</p>
+//         <p><strong className="text-gray-700">👥 Travelers:</strong> {travelerCount}</p>
+//       </div>
+
+//       <div className="bg-gray-100 rounded p-4 text-sm mb-6">
+//         <p><strong>Base Price / person:</strong> ${Number(basePrice).toFixed(2)}</p>
+//         <p><strong>Agency Commission / person:</strong> ${Number(agencyCommission).toFixed(2)}</p>
+//         <p><strong>Discount Applied:</strong> {discountLabel}</p>
+//         <p><strong>Price after Discount / person:</strong> ${priceAfterDiscountPerPerson.toFixed(2)}</p>
+//         <p><strong>Traveler Count:</strong> {travelerCount}</p>
+//         <hr className="my-2" />
+//         <p className="text-green-700 font-bold text-lg">Total Payable: ${totalPrice.toFixed(2)}</p>
+//       </div>
+
+//       <div className="flex gap-4">
+//         <button onClick={handlePay} disabled={processing} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+//           {processing ? "Processing..." : "Pay Now"}
+//         </button>
+//         <button onClick={() => navigate('/my-bookings')} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded">
+//           Pay it later
+//         </button>
+//       </div>
+//     </motion.div>
+//   );
+// };
+
+// export default PaymentPage;
