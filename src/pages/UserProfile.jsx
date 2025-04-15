@@ -15,6 +15,7 @@ const UserProfile = () => {
   const [showSavedCheck, setShowSavedCheck] = useState(false);
   const [customerType, setCustomerType] = useState({ name: "", discount: 0 });
   const [profileImage, setProfileImage] = useState(null);
+  const [imageTimestamp, setImageTimestamp] = useState(Date.now()); // ⏱️ For cache busting
   const [points, setPoints] = useState(0);
   const fileInputRef = useRef(null);
 
@@ -30,6 +31,7 @@ const UserProfile = () => {
         const userData = await res.json();
 
         setProfileImage(userData.profileImage || null);
+        setImageTimestamp(Date.now());
         setPoints(userData.points || 0);
 
         const customerData = userData.customer;
@@ -108,6 +110,7 @@ const UserProfile = () => {
 
       const data = await res.json();
       setProfileImage(data.profileImage);
+      setImageTimestamp(Date.now()); // ⏱️ Force refresh
       toast.success("✅ Image uploaded");
     } catch (err) {
       console.error("❌ Upload failed:", err);
@@ -157,7 +160,11 @@ const UserProfile = () => {
       <div className="flex items-center gap-6 mb-6">
         <div className="relative group w-24 h-24">
           <img
-            src={profileImage ? `${BACKEND_URL}${profileImage}` : "/default-avatar.png"}
+            src={
+              profileImage
+                ? `${BACKEND_URL}${profileImage}?t=${imageTimestamp}`
+                : "/default-avatar.png"
+            }
             alt="Profile"
             className="w-24 h-24 rounded-full border object-cover"
             onClick={() => fileInputRef.current.click()}
@@ -198,7 +205,17 @@ const UserProfile = () => {
 
       {/* 📝 Form */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800">
-        {["custfirstname", "custlastname", "custemail", "custhomephone", "custaddress", "custcity", "custprov", "custpostal", "custcountry"].map((field) => (
+        {[
+          "custfirstname",
+          "custlastname",
+          "custemail",
+          "custhomephone",
+          "custaddress",
+          "custcity",
+          "custprov",
+          "custpostal",
+          "custcountry"
+        ].map((field) => (
           <div key={field}>
             <strong>{field.replace("cust", "").replace(/^[a-z]/, (c) => c.toUpperCase())}:</strong>{" "}
             {editMode ? (
@@ -228,16 +245,26 @@ const UserProfile = () => {
             >
               {saving ? "Saving..." : "Save"}
             </button>
-            <button onClick={() => { setEditMode(false); setFormData(customer); }} className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={() => {
+                setEditMode(false);
+                setFormData(customer);
+              }}
+              className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
+            >
               Cancel
             </button>
           </>
         ) : (
-          <button onClick={() => setEditMode(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          <button
+            onClick={() => setEditMode(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
             Edit Profile
           </button>
         )}
       </div>
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
