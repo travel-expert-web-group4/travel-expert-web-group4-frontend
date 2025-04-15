@@ -19,6 +19,7 @@ import UserProfile from "./pages/UserProfile";
 import AgentProfile from "./pages/AgentProfile";
 import ChatPage from "./pages/ChatPage";
 import NotFound from "./pages/NotFound";
+import CustomerRegistration from "./pages/CustomerRegistration";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -44,6 +45,7 @@ function AppRoutes() {
           <Route path="/packages" element={<Packages />} />
           <Route path="/packages/:id" element={<PackageDetails />} />
           <Route path="/packages/:id/book" element={<BookingPage />} />
+          <Route path="/customer-registration" element={<CustomerRegistration />} />
           <Route
             path="/booking-confirmation"
             element={<BookingConfirmation />}
