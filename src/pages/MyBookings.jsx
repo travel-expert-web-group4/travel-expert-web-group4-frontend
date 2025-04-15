@@ -7,7 +7,7 @@ import Spinner from "../components/Spinner";
 import { bookingList, deleteBooking } from "../api/booking";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import "../styles/MyBookings.css";
+// import "../styles/MyBookings.css";
 
 const MyBookings = () => {
   const { user, loading } = useAuth();
