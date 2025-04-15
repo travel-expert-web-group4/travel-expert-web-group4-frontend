@@ -23,7 +23,7 @@ const useChat = (userEmail, onMessageReceive) => {
         console.log("✅ WebSocket Connected");
         setConnected(true);
 
-        client.subscribe(`/user/${userEmail}/queue/messages`, (message) => {
+        client.subscribe(`/user/queue/messages`, (message) => {
           const payload = JSON.parse(message.body);
           onMessageReceive(payload);
         });
