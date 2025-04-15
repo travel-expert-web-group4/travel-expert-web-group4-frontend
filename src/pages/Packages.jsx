@@ -223,11 +223,20 @@ const Packages = () => {
                 <p><strong>Reviews:</strong> {pkg.reviews.length}</p>
                 <p className="text-green-600 font-bold">Price: ${pkg.basePrice}</p>
                 <button
-                  onClick={() => navigate(`/packages/${pkg.packageId}`, { state: pkg })}
-                  className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  View Details
-                </button>
+  onClick={() => {
+    const fullPackage = {
+      ...pkg,
+      imageUrl: pkg.imageUrl ? `${API_BASE_URL}${pkg.imageUrl}` : null,
+    };
+    sessionStorage.setItem("selectedPackage", JSON.stringify(fullPackage));
+    navigate(`/packages/${pkg.packageId}`, { state: fullPackage });
+  }}
+  
+  className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+>
+  View Details
+</button>
+
               </div>
             </motion.div>
           ))
