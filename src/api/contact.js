@@ -3,6 +3,11 @@ const BASE_URL = "http://localhost:8080/api";
 // Get token once at the top
 const getAuthHeader = () => {
   const token = localStorage.getItem("jwt_token");
+  if(token == null) {
+    return {
+      "Content-Type": "application/json",
+    }
+  }
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
