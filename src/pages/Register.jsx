@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+import { validateEmail } from "../utils/validate";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -53,6 +54,9 @@ const Register = () => {
 
   const handleEmailBlur = async () => {
     if (!formData.email.trim()) return;
+    if(!validateEmail(formData.email.trim())) {
+      return toast.error("please enter valid email");
+    }
     const email = formData.email.trim().toLowerCase();
     setCheckingEmail(true);
 
