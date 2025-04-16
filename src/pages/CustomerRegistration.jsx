@@ -139,7 +139,7 @@ const CustomerRegistration = () => {
           <input
             type="text"
             name="custProvince"
-            placeholder="Province"
+            placeholder="Abbreviated Province, like AB"
             required
             value={formData.custProvince}
             onChange={handleChange}
