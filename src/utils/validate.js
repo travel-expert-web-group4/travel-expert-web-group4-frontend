@@ -5,24 +5,19 @@ export const validateName = (name) => {
 
 export const validateMultipleName = (input) => {
   if (typeof input !== "string" || input.trim() === "") return false;
-
   const nameRegex = /^[A-Za-z\s'-]{2,50}$/;
-
-  const names = input.split(",").map((name) => name);
-
+  const names = input.split(",").map((name) => name.trim());
   if (names.some((name) => name === "")) return false;
-
   return names.every((name) => nameRegex.test(name));
 };
 
 export const validatePhoneNumber = (phoneNumber) => {
   const phoneRegex = /^(\+1)?[\s\-]?(\(?\d{3}\)?[\s\-]?)?\d{3}[\s\-]?\d{4}$/;
-
   return phoneRegex.test(phoneNumber.trim());
 };
 
 export const validateAddress = (address) => {
-  const addressRegex = /^[0-9]+ [A-Za-z ]+(St|Ave|Rd|Blvd|Dr|Court|Way|Lane|Street|Road)$/;
+  const addressRegex = /^[0-9]+[A-Za-z]* [A-Za-z0-9\s,'-.]{3,}$/;
   return addressRegex.test(address);
 };
 
@@ -44,38 +39,70 @@ export const validatePostalCode = (postalCode) => {
 export const validateCountry = (country) => {
   const countryRegex = /^[A-Za-z\s\-]+$/;
   return countryRegex.test(country);
-}
+};
 
 export const validateRegisterData = (formData) => {
   console.log(formData);
-  if(!validateName(formData.custFirstName)) {
-    return {valid:false,message:"please input valid firstname"};
+  if (!validateName(formData.custFirstName)) {
+    return {
+      valid: false,
+      message: "please input valid firstname",
+      field: "custFirstName",
+    };
   }
-  if(!validateName(formData.custLastName)) {
-    return {valid:false,message:"please input valid lastname"};
+  if (!validateName(formData.custLastName)) {
+    return {
+      valid: false,
+      message: "please input valid lastname",
+      field: "custLastName",
+    };
   }
-  if(!validatePhoneNumber(formData.custPhone)) {
-    return {valid:false,message:"please input valid phone number"};
+  if (!validatePhoneNumber(formData.custPhone)) {
+    return {
+      valid: false,
+      message: "please input valid phone number",
+      field: "custPhone",
+    };
   }
-  if(!validateAddress(formData.custAddress)) {
-    return {valid:false,message:"please input valid address"};
+  if (!validateAddress(formData.custAddress)) {
+    return {
+      valid: false,
+      message: "please input valid address",
+      field: "custAddress",
+    };
   }
-  if(!validateCity(formData.custCity)) {
-    return {valid:false,message:"please input valid city"};
+  if (!validateCity(formData.custCity)) {
+    return {
+      valid: false,
+      message: "please input valid city",
+      field: "custCity",
+    };
   }
-  if(!validateProvince(formData.custProvince)) {
-    return {valid:false,message:"please input valid province"};
+  if (!validateProvince(formData.custProvince)) {
+    return {
+      valid: false,
+      message: "please input valid province",
+      field: "custProvince",
+    };
   }
-  if(!validatePostalCode(formData.custPostal)) {
-    return {valid:false,message:"please input valid postal code"};
+  if (!validatePostalCode(formData.custPostal)) {
+    return {
+      valid: false,
+      message: "please input valid postal code",
+      field: "custPostal",
+    };
   }
-  if(!validateCountry(formData.custCountry)) {
-    return {valid:false,message:"please input valid country"};
+  if (!validateCountry(formData.custCountry)) {
+    return {
+      valid: false,
+      message: "please input valid country",
+      field: "custCountry",
+    };
   }
-  return {valid:true,message:""}
-}
+  return { valid: true, message: "" };
+};
 
 export const validateEmail = (email) => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(email);
-}
+};
