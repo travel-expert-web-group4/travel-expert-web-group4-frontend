@@ -32,7 +32,7 @@ export const validateCity = (city) => {
 };
 
 export const validateProvince = (province) => {
-  const provinceRegex = /^[A-Za-z\s'-]{2,50}$/;
+  const provinceRegex = /^[A-Za-z\s'-]{2}$/;
   return provinceRegex.test(province);
 };
 
