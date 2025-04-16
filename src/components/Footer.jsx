@@ -6,7 +6,7 @@ const Footer = () => {
   const { user } = useAuth();
   return (
     <footer className="bg-[#023e93] text-white text-sm">
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 animate-fade-in">
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fade-in">
         {/* About */}
         <div>
           <h3 className="text-base font-semibold mb-3">About Travel Tales</h3>
@@ -33,25 +33,6 @@ const Footer = () => {
           <p className="text-gray-400 text-xs">📧 info@traveltales.com</p>
           <p className="text-gray-400 text-xs">📞 +1 (123) 456-7890</p>
           <p className="text-gray-400 text-xs">📍 123 Adventure St, Travel City</p>
-        </div>
-
-        {/* Newsletter */}
-        <div>
-          <h3 className="text-base font-semibold mb-3">Newsletter</h3>
-          <p className="text-gray-400 text-xs mb-2">Get travel deals & tips in your inbox.</p>
-          <form className="flex flex-col gap-2">
-            <input
-              type="email"
-              placeholder="Your email"
-              className="px-3 py-1 text-xs rounded bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            />
-            <button
-              type="submit"
-              className="bg-yellow-400 text-gray-900 text-xs font-semibold px-3 py-1 rounded hover:bg-yellow-500 transition"
-            >
-              Subscribe
-            </button>
-          </form>
         </div>
       </div>
 

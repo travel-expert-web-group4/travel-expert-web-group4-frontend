@@ -257,6 +257,7 @@
 
 
 // src/components/Navbar.jsx
+
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/images/logo.png";
@@ -265,9 +266,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
   faUserPlus,
-  faWallet,
   faSuitcase,
-  faChartLine,
   faSignOutAlt,
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
@@ -411,32 +410,12 @@ const Navbar = () => {
                 </li>
                 <li>
                   <Link
-                    to="/wallet"
-                    onClick={handleMenuItemClick}
-                    className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition"
-                  >
-                    <FontAwesomeIcon icon={faWallet} className="mr-2 text-gray-500" />
-                    Wallet
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     to="/my-bookings"
                     onClick={handleMenuItemClick}
                     className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition"
                   >
                     <FontAwesomeIcon icon={faSuitcase} className="mr-2 text-gray-500" />
                     My Bookings
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard"
-                    onClick={handleMenuItemClick}
-                    className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition"
-                  >
-                    <FontAwesomeIcon icon={faChartLine} className="mr-2 text-gray-500" />
-                    Dashboard
                   </Link>
                 </li>
                 <li>
