@@ -17,8 +17,8 @@ export const validatePhoneNumber = (phoneNumber) => {
 };
 
 export const validateAddress = (address) => {
-  // const addressRegex = /^[0-9]+ [A-Za-z ]+(?:\s+(St|Ave|Rd|Blvd|Dr|Court|Way|Lane|Street|Road|street))$/;
-  const addressRegex = /^[0-9]+\s+[\w\s.'-]+(?:\s+(St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Court|Way|Lane))$/i;
+  const addressRegex = /^\d{1,6}\s+([\w\-.'#]+\s?)+\s+(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Court|Ct|Lane|Ln|Way|Crescent|Circle|Cir|Terrace|Place|Pl|Trail|Trl|Parkway|Pkwy)\s*(N|S|E|W|NE|NW|SE|SW)?$/i;
+  // const addressRegex = /^[0-9]+\s+[\w\s.'-]+(?:\s+(St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Court|Way|Lane))$/i;
   return addressRegex.test(address);
 };
 
@@ -33,7 +33,6 @@ export const validateProvince = (province) => {
 };
 
 export const validatePostalCode = (postalCode) => {
-  // const postalCodeRegex = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
   const postalCodeRegex = /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z] \d[ABCEGHJ-NPRSTV-Z]\d$/i;
   return postalCodeRegex.test(postalCode);
 };
