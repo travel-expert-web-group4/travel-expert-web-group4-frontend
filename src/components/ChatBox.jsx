@@ -10,26 +10,41 @@ const ChatBox = ({ contact, onClose }) => {
   const [text, setText] = useState("");
   const messagesEndRef = useRef(null);
 
-  // ✅ Single call to useChat
-  const { sendMessage, connected } = useChat(user?.sub, (incomingMessage) => {
+  // ✅ Using userId or email — replace `sub` with `id` if needed
+  const senderId = user?.id;
+  const recipientId = contact?.id;
+  const senderEmail =  user?.sub;
+  const recipientEmail = contact?.email;
+
+  // ✅ Setup WebSocket connection
+  const { sendMessage, connected } = useChat(senderEmail, (incomingMessage) => {
+    // Only add if it's from or to this contact
     if (
-      incomingMessage.senderId === contact.email ||
-      incomingMessage.recipientId === contact.email
+      [incomingMessage.senderEmail, incomingMessage.recipientEmail].includes(rec)
     ) {
-      setMessages((prev) => [...prev, incomingMessage]);
+      // setMessages((prev) => {
+      //   const isDuplicate = prev.some(
+      //     (msg) =>
+      //       msg.timestamp === incomingMessage.timestamp &&
+      //       msg.content === incomingMessage.content
+      //   );
+      //   return isDuplicate ? prev : [...prev, incomingMessage];
+      // });
     }
   });
 
-  // ✅ Load chat history on mount
+  // ✅ Load history once on mount
   useEffect(() => {
-    if (user?.sub && contact?.email) {
-      getChatHistory(user.sub, contact.email, token)
-        .then(setMessages)
+    if (senderEmail && recipientEmail) {
+      getChatHistory(senderEmail, recipientEmail, token)
+        .then((history) => {
+          setMessages(history || []);
+        })
         .catch(console.error);
     }
-  }, [user, contact, token]);
+  }, [senderEmail, recipientEmail, token]);
 
-  // ✅ Auto scroll to bottom when messages update
+  // ✅ Scroll to latest
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -38,8 +53,8 @@ const ChatBox = ({ contact, onClose }) => {
     if (text.trim() === "") return;
 
     const newMsg = {
-      senderId: user.sub,
-      recipientId: contact.email,
+      senderEmail,
+      recipientEmail,
       content: text,
     };
 
@@ -68,13 +83,13 @@ const ChatBox = ({ contact, onClose }) => {
         </button>
       </div>
 
-      {/* Chat History */}
+      {/* Messages */}
       <div className="flex-1 p-3 overflow-y-auto space-y-2">
         {messages.map((msg, index) => (
           <div
             key={index}
             className={`max-w-[75%] p-2 px-3 rounded-lg text-sm ${
-              msg.senderId === user.sub
+              msg.senderId === senderEmail
                 ? "bg-blue-500 text-white ml-auto"
                 : "bg-gray-200 text-gray-900"
             }`}
@@ -85,16 +100,14 @@ const ChatBox = ({ contact, onClose }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area */}
+      {/* Input */}
       <div className="flex items-center gap-2 border-t px-3 py-2">
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder={
-            connected ? "Type a message..." : "Connecting to chat..."
-          }
+          placeholder={connected ? "Type a message..." : "Connecting to chat..."}
           disabled={!connected}
           className="flex-1 text-sm border rounded-full px-3 py-1 focus:outline-none disabled:opacity-50"
         />
