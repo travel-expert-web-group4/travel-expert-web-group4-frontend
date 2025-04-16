@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import { validateRegisterData } from "../utils/validate";
 
 const CustomerRegistration = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const CustomerRegistration = () => {
     custCity: "",
     custProvince: "",
     custPostal: "",
-    custCountry: ""
+    custCountry: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -28,49 +29,54 @@ const CustomerRegistration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      const res = await fetch("http://localhost:8080/api/customer/new/1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          custfirstname: formData.custFirstName,
-          custlastname: formData.custLastName,
-          custaddress: formData.custAddress,
-          custcity: formData.custCity,
-          custprov: formData.custProvince,
-          custpostal: formData.custPostal,
-          custcountry: formData.custCountry,
-          custbusphone: formData.custPhone,
-          custemail: formData.custEmail.trim().toLowerCase()
-        })
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(`❌ Customer creation failed: ${msg}`);
-      }
-
-      toast.success("✅ Customer record created. Continue to set password.");
-      setTimeout(() => {
-        navigate("/register", {
-          state: { email: formData.custEmail.trim().toLowerCase() }
+    const validation = validateRegisterData(formData);
+    if (!validation.valid) {
+      toast.error(validation.message);
+    } else {
+      try {
+        setSubmitting(true);
+        const res = await fetch("http://localhost:8080/api/customer/new/1", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            custfirstname: formData.custFirstName,
+            custlastname: formData.custLastName,
+            custaddress: formData.custAddress,
+            custcity: formData.custCity,
+            custprov: formData.custProvince,
+            custpostal: formData.custPostal,
+            custcountry: formData.custCountry,
+            custbusphone: formData.custPhone,
+            custemail: formData.custEmail.trim().toLowerCase(),
+          }),
         });
-      }, 1500);
 
-    } catch (err) {
-      console.error("Registration error:", err);
-      toast.error(err.message || "Something went wrong.");
-    } finally {
-      setSubmitting(false);
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(`❌ Customer creation failed: ${msg}`);
+        }
+
+        toast.success("✅ Customer record created. Continue to set password.");
+        setTimeout(() => {
+          navigate("/register", {
+            state: { email: formData.custEmail.trim().toLowerCase() },
+          });
+        }, 1500);
+      } catch (err) {
+        console.error("Registration error:", err);
+        toast.error(err.message || "Something went wrong.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
   return (
     <div className="max-w-xl mx-auto p-6 mt-10 border rounded-xl shadow-md bg-white">
       <Toaster position="top-center" />
-      <h2 className="text-3xl font-bold mb-6 text-center text-green-700">New Customer Registration</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center text-green-700">
+        New Customer Registration
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex gap-4">
           <input
@@ -133,7 +139,7 @@ const CustomerRegistration = () => {
           <input
             type="text"
             name="custProvince"
-            placeholder="Province"
+            placeholder="Abbreviated Province, like AB"
             required
             value={formData.custProvince}
             onChange={handleChange}
