@@ -1,5 +1,14 @@
 const BACKEND_URL = 'http://localhost:8080';
 
+// Get token once at the top
+const getAuthHeader = () => {
+  const token = localStorage.getItem("jwt_token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 // Get full web user (includes customer and nested agent/agency)
 export const getUserById = async (userId) => {
   try {
@@ -15,7 +24,10 @@ export const getUserById = async (userId) => {
 // Get customer type (guest / bronze / platinum)
 export const getCustomerType = async (customerId) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/customer/${customerId}/customer-type`);
+    const res = await fetch(`${BACKEND_URL}/api/customer/${customerId}/customer-type`, {
+      method: "GET",
+      headers: getAuthHeader(),
+    });
     if (!res.ok) throw new Error("Failed to fetch customer type");
     return await res.json();
   } catch (err) {
