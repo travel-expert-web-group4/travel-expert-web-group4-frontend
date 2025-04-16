@@ -130,17 +130,17 @@
 
 // export default PaymentPage;
 
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { bookingDetail } from "../api/booking";
 import { checkOutBill } from "../api/payment";
+import { jwtDecode } from "jwt-decode"; // ✅ FIXED: Named import
 
 const PaymentPage = () => {
   const { state } = useLocation();
-  const { user } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   const [processing, setProcessing] = useState(false);
@@ -152,52 +152,56 @@ const PaymentPage = () => {
   if (!state || !state.bookingNo) return <p>No payment info found.</p>;
   const { bookingNo } = state;
 
-  const getUserDiscountInfo = (user) => {
-    let baseDiscount = 0;
+  const getUserDiscountInfo = (decodedToken) => {
+    let totalDiscount = 0;
     let labels = [];
-  
-    const customerType = user?.customerType; // This is a string like "Bronze"
-    const role = user?.role?.toLowerCase();
-  
+
+    const customerType = decodedToken?.customerType;
+    const role = decodedToken?.role?.toLowerCase();
+
+    // 🎯 Apply customerType discount
     if (customerType === "Bronze") {
-      baseDiscount = 0.15;
+      totalDiscount += 0.15;
       labels.push("15% Bronze");
     } else if (customerType === "Platinum") {
-      baseDiscount = 0.10;
+      totalDiscount += 0.10;
       labels.push("10% Platinum");
     }
-  
-    if (role === "agent" || role === "role_agent") {
-      baseDiscount += 0.10;
+
+    // 🎯 Apply agent discount
+    if (role === "role_agent") {
+      totalDiscount += 0.10;
       labels.push("10% Agent");
     }
-  
+
     return {
-      discountMultiplier: 1 - baseDiscount,
+      discountMultiplier: 1 - totalDiscount,
       labels: labels.length ? labels : ["0%"],
     };
   };
-  
-  
+
   useEffect(() => {
-    console.log("✅ user object for discount check:", user);
+    const decoded = jwtDecode(token); // ✅ Decode JWT
+    console.log("✅ decoded token:", decoded);
 
     const fetchDetails = async () => {
       const data = await bookingDetail(bookingNo);
       if (data) {
         setBookingData(data);
-        const { discountMultiplier, labels } = getUserDiscountInfo(user);
+
+        const { discountMultiplier, labels } = getUserDiscountInfo(decoded);
 
         const fullPricePerPerson = Number(data.basePrice) + Number(data.agencyCommission);
         const discountedPricePerPerson = fullPricePerPerson * discountMultiplier;
 
         setPriceAfterDiscountPerPerson(discountedPricePerPerson);
         setTotalPrice(discountedPricePerPerson * Number(data.travelerCount));
-        setDiscountLabel(labels.length > 0 ? labels.join(" + ") : "0%");
+        setDiscountLabel(labels.join(" + "));
       }
     };
-    fetchDetails();
-  }, [bookingNo, user]);
+
+    if (token) fetchDetails();
+  }, [bookingNo, token]);
 
   const handlePay = async () => {
     if (!bookingData) return;
@@ -212,7 +216,6 @@ const PaymentPage = () => {
   if (!bookingData) return <p className="text-center py-10 text-gray-600">Loading booking details...</p>;
 
   const { name, destination, basePrice, agencyCommission, travelerCount } = bookingData;
-  const fullPricePerPerson = Number(basePrice) + Number(agencyCommission);
 
   return (
     <motion.div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -221,9 +224,9 @@ const PaymentPage = () => {
       </h2>
 
       <div className="space-y-2 text-sm text-gray-800 mb-4">
-        <p><strong className="text-gray-700">📦 Package:</strong> {name}</p>
-        <p><strong className="text-gray-700">📍 Destination:</strong> {destination}</p>
-        <p><strong className="text-gray-700">👥 Travelers:</strong> {travelerCount}</p>
+        <p><strong>📦 Package:</strong> {name}</p>
+        <p><strong>📍 Destination:</strong> {destination}</p>
+        <p><strong>👥 Travelers:</strong> {travelerCount}</p>
       </div>
 
       <div className="bg-gray-100 rounded p-4 text-sm mb-6">
@@ -249,3 +252,4 @@ const PaymentPage = () => {
 };
 
 export default PaymentPage;
+
