@@ -283,8 +283,11 @@ const BookingPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!customerId) return toast.error("Customer info not ready");
-    if (!validateName(formData.fullName) || !validateMultipleName(formData.travelers)) {
-      return toast.error("Invalid input");
+    if (!validateName(formData.fullName)) {
+      return toast.error("please input valid name");
+    }
+    if(!validateMultipleName(formData.travelers)) {
+      return toast.error("please input valid travelers");
     }
 
     const booking = {
