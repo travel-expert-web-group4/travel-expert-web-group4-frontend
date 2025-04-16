@@ -137,6 +137,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { bookingDetail } from "../api/booking";
 import { checkOutBill } from "../api/payment";
+import { getCustomerType } from "../api/user";
 
 const PaymentPage = () => {
   const { state } = useLocation();
@@ -147,22 +148,23 @@ const PaymentPage = () => {
   const [bookingData, setBookingData] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
   const [discountLabel, setDiscountLabel] = useState("0%");
+  const [discount,setDiscount] = useState(1);
   const [priceAfterDiscountPerPerson, setPriceAfterDiscountPerPerson] = useState(0);
 
   if (!state || !state.bookingNo) return <p>No payment info found.</p>;
   const { bookingNo } = state;
 
-  const getUserDiscountInfo = (user) => {
+  const getUserDiscountInfo = async (user) => {
     let baseDiscount = 0;
     let labels = [];
-  
-    const customerType = user?.customerType; // This is a string like "Bronze"
+
+    const customerType = await getCustomerType(user.customerId); // This is a string like "Bronze"
     const role = user?.role?.toLowerCase();
   
-    if (customerType === "Bronze") {
+    if (customerType.name === "Bronze") {
       baseDiscount = 0.15;
       labels.push("15% Bronze");
-    } else if (customerType === "Platinum") {
+    } else if (customerType.name === "Platinum") {
       baseDiscount = 0.10;
       labels.push("10% Platinum");
     }
@@ -186,7 +188,8 @@ const PaymentPage = () => {
       const data = await bookingDetail(bookingNo);
       if (data) {
         setBookingData(data);
-        const { discountMultiplier, labels } = getUserDiscountInfo(user);
+        const { discountMultiplier, labels } = await getUserDiscountInfo(user);
+        setDiscount(discountMultiplier);
 
         const fullPricePerPerson = Number(data.basePrice) + Number(data.agencyCommission);
         const discountedPricePerPerson = fullPricePerPerson * discountMultiplier;
@@ -202,7 +205,7 @@ const PaymentPage = () => {
   const handlePay = async () => {
     if (!bookingData) return;
     setProcessing(true);
-    const res = await checkOutBill(bookingData);
+    const res = await checkOutBill({...bookingData,basePrice: bookingData.basePrice * discount,agencyCommission: bookingData.agencyCommission * discount});
     if (res?.sessionUrl) {
       window.location.href = res.sessionUrl;
     }
