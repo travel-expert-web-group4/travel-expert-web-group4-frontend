@@ -137,7 +137,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { bookingDetail } from "../api/booking";
 import { checkOutBill } from "../api/payment";
-import { getCustomerType } from "../api/user";
+import { getUserById } from "../api/user";
 
 const PaymentPage = () => {
   const { state } = useLocation();
@@ -158,18 +158,17 @@ const PaymentPage = () => {
     let baseDiscount = 0;
     let labels = [];
 
-    const customerType = await getCustomerType(user.customerId); // This is a string like "Bronze"
-    const role = user?.role?.toLowerCase();
+    const userDetail = await getUserById(user.webUserId);
   
-    if (customerType.name === "Bronze") {
+    if (userDetail.points >= 5000 && userDetail.points < 20000) {
       baseDiscount = 0.15;
       labels.push("15% Bronze");
-    } else if (customerType.name === "Platinum") {
+    } else if (userDetail.points >= 20000) {
       baseDiscount = 0.10;
       labels.push("10% Platinum");
     }
   
-    if (role === "agent" || role === "role_agent") {
+    if (userDetail.agent) {
       baseDiscount += 0.10;
       labels.push("10% Agent");
     }
