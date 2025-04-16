@@ -66,13 +66,13 @@ export const validateRegisterData = (formData) => {
       field: "custPhone",
     };
   }
-  if (!validateAddress(formData.custAddress)) {
-    return {
-      valid: false,
-      message: "please input valid address",
-      field: "custAddress",
-    };
-  }
+  // if (!validateAddress(formData.custAddress)) {
+  //   return {
+  //     valid: false,
+  //     message: "please input valid address",
+  //     field: "custAddress",
+  //   };
+  // }
   if (!validateCity(formData.custCity)) {
     return {
       valid: false,
