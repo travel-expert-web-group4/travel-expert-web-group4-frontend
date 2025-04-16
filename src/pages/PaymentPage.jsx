@@ -131,19 +131,17 @@
 // export default PaymentPage;
 
 
-
-
-
-import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { bookingDetail } from "../api/booking";
 import { checkOutBill } from "../api/payment";
 import { getUserById } from "../api/user";
 
-const CustomerRegistration = () => {
+const PaymentPage = () => {
+  const { state } = useLocation();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [processing, setProcessing] = useState(false);
@@ -219,212 +217,37 @@ const CustomerRegistration = () => {
   const fullPricePerPerson = Number(basePrice) + Number(agencyCommission);
 
   return (
-    <div className="min-h-screen bg-blue-100 flex items-center justify-center px-4">
-      <div className="max-w-4xl w-full p-10 border rounded-xl shadow-md bg-white">
-        <Toaster position="top-center" />
-        <h2 className="text-3xl font-bold mb-6 text-center text-green-700 font-sans">
-          New Customer Registration
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
-            <div className="flex gap-4">
-              {["custFirstName", "custLastName"].map((field, i) => (
-                <div key={field} className="w-1/2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    {i === 0 ? "First Name" : "Last Name"}
-                  </label>
-                  <div className="relative">
-                    <FaUser className="absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      name={field}
-                      value={formData[field]}
-                      onChange={handleChange}
-                      required
-                      className="w-full border px-10 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    />
-                  </div>
-                  {errors[field] && <p className="text-sm text-red-600 mt-1">{errors[field]}</p>}
-                </div>
-              ))}
-            </div>
+    <motion.div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <h2 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+        <span role="img" aria-label="card">💳</span> Payment for Booking <span className="text-blue-800">#{bookingNo}</span>
+      </h2>
 
-            {/* Email */}
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-            <div className="relative">
-              <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
-              <input
-                type="email"
-                name="custEmail"
-                value={formData.custEmail}
-                onChange={handleChange}
-                required
-                className="w-full border px-10 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
-            {errors.custEmail && <p className="text-sm text-red-600 mt-1">{errors.custEmail}</p>}
-
-            {/* Phone */}
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Phone Number <span className="text-gray-400 text-xs">(e.g., 403-123-4567)</span>
-            </label>
-            <div className="relative">
-              <FaPhone className="absolute left-3 top-3 text-gray-400" />
-              <input
-                type="text"
-                name="custPhone"
-                value={formData.custPhone}
-                onChange={handleChange}
-                required
-                className="w-full border px-10 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
-            {errors.custPhone && <p className="text-sm text-red-600 mt-1">{errors.custPhone}</p>}
-
-            {/* Street Address */}
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Street Address <span className="text-gray-400 text-xs">(e.g., 301 8 Ave SW)</span>
-            </label>
-            <div className="relative">
-              <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400" />
-              <input
-                type="text"
-                id="custAddress"
-                name="custAddress"
-                value={formData.custAddress}
-                onChange={handleChange}
-                required
-                className="w-full border px-10 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
-            {errors.custAddress && (
-              <p className="text-sm text-red-600 mt-1">{errors.custAddress}</p>
-            )}
-
-            {/* City + Province */}
-            <div className="flex gap-3">
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
-                <div className="relative">
-                  <FaCity className="absolute left-3 top-3 text-gray-400" />
-                  <input
-                    type="text"
-                    name="custCity"
-                    value={formData.custCity}
-                    onChange={handleChange}
-                    required
-                    className="w-full border px-10 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  />
-                </div>
-                {errors.custCity && <p className="text-sm text-red-600 mt-1">{errors.custCity}</p>}
-              </div>
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Province (e.g., AB)
-                </label>
-                <select
-                  name="custProvince"
-                  value={formData.custProvince}
-                  onChange={handleChange}
-                  required
-                  className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-                >
-                  <option value="">Select Province</option>
-                  <option value="AB">Alberta</option>
-                  <option value="BC">British Columbia</option>
-                  <option value="MB">Manitoba</option>
-                  <option value="NB">New Brunswick</option>
-                  <option value="NL">Newfoundland and Labrador</option>
-                  <option value="NS">Nova Scotia</option>
-                  <option value="NT">Northwest Territories</option>
-                  <option value="NU">Nunavut</option>
-                  <option value="ON">Ontario</option>
-                  <option value="PE">Prince Edward Island</option>
-                  <option value="QC">Quebec</option>
-                  <option value="SK">Saskatchewan</option>
-                  <option value="YT">Yukon</option>
-                </select>
-                {errors.custProvince && (
-                  <p className="text-sm text-red-600 mt-1">{errors.custProvince}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Postal + Country */}
-            <div className="flex gap-3">
-            <div className="w-1/2">
-  <label className="block text-sm font-semibold text-gray-700 mb-1">
-    Postal Code <span className="text-gray-400 text-xs">(e.g., T5S 0E6)</span>
-  </label>
-  <input
-    type="text"
-    name="custPostal"
-    value={formData.custPostal}
-    onChange={(e) =>
-      handleChange({
-        target: {
-          name: "custPostal",
-          value: e.target.value
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, "")
-            .replace(/(.{3})(.{1,3})/, "$1 $2"),
-        },
-      })
-    }
-    required
-    className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-  />
-  {errors.custPostal && (
-    <p className="text-sm text-red-600 mt-1">{errors.custPostal}</p>
-  )}
-</div>
-
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Country</label>
-                <div className="relative">
-                  <FaGlobe className="absolute left-3 top-3 text-gray-400" />
-                  <select
-                    name="custCountry"
-                    value={formData.custCountry}
-                    onChange={handleChange}
-                    required
-                    className="w-full border px-10 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  >
-                    <option value="">Select Country</option>
-                    <option value="CA">Canada</option>
-                    <option value="US">United States</option>
-                  </select>
-                </div>
-                {errors.custCountry && (
-                  <p className="text-sm text-red-600 mt-1">{errors.custCountry}</p>
-                )}
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="flex justify-between items-center pt-2">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
-            >
-              <FaArrowLeft /> Back
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
-            >
-              {submitting ? "Submitting..." : "Submit Customer Info"}
-            </button>
-          </div>
-        </form>
+      <div className="space-y-2 text-sm text-gray-800 mb-4">
+        <p><strong className="text-gray-700">📦 Package:</strong> {name}</p>
+        <p><strong className="text-gray-700">📍 Destination:</strong> {destination}</p>
+        <p><strong className="text-gray-700">👥 Travelers:</strong> {travelerCount}</p>
       </div>
-    </div>
+
+      <div className="bg-gray-100 rounded p-4 text-sm mb-6">
+        <p><strong>Base Price / person:</strong> ${Number(basePrice).toFixed(2)}</p>
+        <p><strong>Agency Commission / person:</strong> ${Number(agencyCommission).toFixed(2)}</p>
+        <p><strong>Discount Applied:</strong> {discountLabel}</p>
+        <p><strong>Price after Discount / person:</strong> ${priceAfterDiscountPerPerson.toFixed(2)}</p>
+        <p><strong>Traveler Count:</strong> {travelerCount}</p>
+        <hr className="my-2" />
+        <p className="text-green-700 font-bold text-lg">Total Payable: ${totalPrice.toFixed(2)}</p>
+      </div>
+
+      <div className="flex gap-4">
+        <button onClick={handlePay} disabled={processing} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+          {processing ? "Processing..." : "Pay Now"}
+        </button>
+        <button onClick={() => navigate('/my-bookings')} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded">
+          Pay it later
+        </button>
+      </div>
+    </motion.div>
   );
 };
 
-export default CustomerRegistration;
-
-
-
+export default PaymentPage;
