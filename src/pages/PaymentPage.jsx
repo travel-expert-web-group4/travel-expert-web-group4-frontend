@@ -138,126 +138,85 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
-import {
-  FaArrowLeft,
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-  FaMapMarkerAlt,
-  FaCity,
-  FaGlobe,
-} from "react-icons/fa";
-import { validateRegisterData } from "../utils/validate";
+import { useAuth } from "../contexts/AuthContext";
+import { bookingDetail } from "../api/booking";
+import { checkOutBill } from "../api/payment";
+import { getUserById } from "../api/user";
 
 const CustomerRegistration = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const emailFromRegister = location.state?.email || "";
-  const autocompleteRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    custFirstName: "",
-    custLastName: "",
-    custEmail: emailFromRegister,
-    custPhone: "",
-    custAddress: "",
-    custCity: "",
-    custProvince: "",
-    custPostal: "",
-    custCountry: "",
-  });
+  const [processing, setProcessing] = useState(false);
+  const [bookingData, setBookingData] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [discountLabel, setDiscountLabel] = useState("0%");
+  const [discount,setDiscount] = useState(1);
+  const [priceAfterDiscountPerPerson, setPriceAfterDiscountPerPerson] = useState(0);
 
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+  if (!state || !state.bookingNo) return <p>No payment info found.</p>;
+  const { bookingNo } = state;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+  const getUserDiscountInfo = async (user) => {
+    let baseDiscount = 0;
+    let labels = [];
+
+    const userDetail = await getUserById(user.webUserId);
+  
+    if (userDetail.points >= 5000 && userDetail.points < 20000) {
+      baseDiscount = 0.15;
+      labels.push("15% Bronze");
+    } else if (userDetail.points >= 20000) {
+      baseDiscount = 0.10;
+      labels.push("10% Platinum");
+    }
+  
+    if (userDetail.agent) {
+      baseDiscount += 0.10;
+      labels.push("10% Agent");
+    }
+  
+    return {
+      discountMultiplier: 1 - baseDiscount,
+      labels: labels.length ? labels : ["0%"],
+    };
   };
-
-  const handleAddressSelect = () => {
-    const place = autocompleteRef.current.getPlace();
-    if (!place || !place.address_components) return;
-
-    const getComponent = (type, format = "long_name") =>
-      place.address_components.find((comp) => comp.types.includes(type))?.[format] || "";
-
-    const streetNumber = getComponent("street_number");
-    const route = getComponent("route");
-    const provinceShort = getComponent("administrative_area_level_1", "short_name");
-
-    setFormData((prev) => ({
-      ...prev,
-      custAddress: `${streetNumber} ${route}`.trim(),
-      custCity: getComponent("locality"),
-      custProvince: provinceShort,
-      custPostal: getComponent("postal_code"),
-      custCountry: getComponent("country", "short_name"),
-    }));
-  };
-
-  const loadGoogleAutocomplete = () => {
-    if (!window.google) return;
-    const input = document.getElementById("custAddress");
-    if (!input) return;
-    const autocomplete = new window.google.maps.places.Autocomplete(input, {
-      types: ["address"],
-      componentRestrictions: { country: "ca" },
-    });
-    autocomplete.addListener("place_changed", handleAddressSelect);
-    autocompleteRef.current = autocomplete;
-  };
-
+  
+  
   useEffect(() => {
-    if (window.google && window.google.maps) loadGoogleAutocomplete();
-  }, []);
+    console.log("✅ user object for discount check:", user);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validation = validateRegisterData(formData);
-    if (!validation.valid) {
-      toast.error(validation.message);
-      setErrors((prev) => ({ ...prev, [validation.field]: validation.message }));
-      return;
-    }
+    const fetchDetails = async () => {
+      const data = await bookingDetail(bookingNo);
+      if (data) {
+        setBookingData(data);
+        const { discountMultiplier, labels } = await getUserDiscountInfo(user);
+        setDiscount(discountMultiplier);
 
-    try {
-      setSubmitting(true);
-      const res = await fetch("http://localhost:8080/api/customer/new/1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          custfirstname: formData.custFirstName,
-          custlastname: formData.custLastName,
-          custaddress: formData.custAddress,
-          custcity: formData.custCity,
-          custprov: formData.custProvince,
-          custpostal: formData.custPostal,
-          custcountry: formData.custCountry,
-          custbusphone: formData.custPhone,
-          custemail: formData.custEmail.trim().toLowerCase(),
-        }),
-      });
+        const fullPricePerPerson = Number(data.basePrice) + Number(data.agencyCommission);
+        const discountedPricePerPerson = fullPricePerPerson * discountMultiplier;
 
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(`❌ Customer creation failed: ${msg}`);
+        setPriceAfterDiscountPerPerson(discountedPricePerPerson);
+        setTotalPrice(discountedPricePerPerson * Number(data.travelerCount));
+        setDiscountLabel(labels.length > 0 ? labels.join(" + ") : "0%");
       }
+    };
+    fetchDetails();
+  }, [bookingNo, user]);
 
-      toast.success("✅ Customer record created. Continue to set password.");
-      setTimeout(() => {
-        navigate("/register", {
-          state: { email: formData.custEmail.trim().toLowerCase() },
-        });
-      }, 1500);
-    } catch (err) {
-      console.error("Registration error:", err);
-      toast.error(err.message || "Something went wrong.");
-    } finally {
-      setSubmitting(false);
+  const handlePay = async () => {
+    if (!bookingData) return;
+    setProcessing(true);
+    const res = await checkOutBill({...bookingData,basePrice: bookingData.basePrice * discount,agencyCommission: bookingData.agencyCommission * discount});
+    if (res?.sessionUrl) {
+      window.location.href = res.sessionUrl;
     }
+    setProcessing(false);
   };
+
+  if (!bookingData) return <p className="text-center py-10 text-gray-600">Loading booking details...</p>;
+
+  const { name, destination, basePrice, agencyCommission, travelerCount } = bookingData;
+  const fullPricePerPerson = Number(basePrice) + Number(agencyCommission);
 
   return (
     <div className="min-h-screen bg-blue-100 flex items-center justify-center px-4">

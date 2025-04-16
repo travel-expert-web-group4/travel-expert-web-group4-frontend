@@ -1,6 +1,6 @@
 export const validateName = (name) => {
   const nameRegex = /^[A-Za-z\s'-]{2,50}$/;
-  return nameRegex.test(name);
+  return nameRegex.test(name.trim());
 };
 
 export const validateMultipleName = (input) => {
@@ -17,22 +17,24 @@ export const validatePhoneNumber = (phoneNumber) => {
 };
 
 export const validateAddress = (address) => {
-  const addressRegex = /^[0-9]+[A-Za-z]* [A-Za-z0-9\s,'-.]{3,}$/;
+  // const addressRegex = /^[0-9]+ [A-Za-z ]+(?:\s+(St|Ave|Rd|Blvd|Dr|Court|Way|Lane|Street|Road|street))$/;
+  const addressRegex = /^[0-9]+\s+[\w\s.'-]+(?:\s+(St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Court|Way|Lane))$/i;
   return addressRegex.test(address);
 };
 
 export const validateCity = (city) => {
   const cityRegex = /^[A-Za-z\s\-]+$/;
-  return cityRegex.test(city);
+  return cityRegex.test(city.trim());
 };
 
 export const validateProvince = (province) => {
   const provinceRegex = /^[A-Za-z\s'-]{2}$/;
-  return provinceRegex.test(province);
+  return provinceRegex.test(province.trim());
 };
 
 export const validatePostalCode = (postalCode) => {
-  const postalCodeRegex = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
+  // const postalCodeRegex = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
+  const postalCodeRegex = /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z] \d[ABCEGHJ-NPRSTV-Z]\d$/i;
   return postalCodeRegex.test(postalCode);
 };
 
