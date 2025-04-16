@@ -12,7 +12,10 @@ const getAuthHeader = () => {
 // Get full web user (includes customer and nested agent/agency)
 export const getUserById = async (userId) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/user/${userId}`);
+    const res = await fetch(`${BACKEND_URL}/api/user/${userId}`,{
+      method: "GET",
+      headers: getAuthHeader(),
+    });
     if (!res.ok) throw new Error("Failed to fetch user");
     return await res.json();
   } catch (err) {
