@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // ✅ added useLocation
 import { motion } from "framer-motion";
 import { FaTh, FaList } from "react-icons/fa";
 
-const API_BASE_URL = "http://localhost:8080"; 
+const API_BASE_URL = "http://localhost:8080";
 
 const Packages = () => {
+  const navigate = useNavigate();
+  const location = useLocation(); // ✅ get URL location
+  const params = new URLSearchParams(location.search);
+  const searchFromHero = params.get("search") || ""; // ✅ read `?search=`
+
   const [packages, setPackages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchFromHero); // ✅ init with query param
   const [sortOption, setSortOption] = useState("");
   const [destinationFilter, setDestinationFilter] = useState("");
   const [startDateFilter, setStartDateFilter] = useState("");
@@ -20,7 +25,8 @@ const Packages = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const packagesPerPage = 6;
-  const navigate = useNavigate();
+
+
 
   useEffect(() => {
     setLoading(true);
