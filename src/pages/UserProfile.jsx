@@ -461,7 +461,7 @@ const UserProfile = () => {
       const data = await res.json();
       setProfileImage(data.profileImage);
       setImageTimestamp(Date.now());
-      toast.success("✅ Image uploaded");
+      toast.success(" Image uploaded");
     } catch (err) {
       console.error(" Upload failed:", err);
       toast.error("Image upload failed");
