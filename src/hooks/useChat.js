@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import Stomp from "stompjs"; // Still using STOMP protocol
+import Stomp from "stompjs";
 
-const SOCKET_URL = "ws://localhost:8080/chat/websocket"; // Native WebSocket path
+const SOCKET_URL = "ws://localhost:8080/chat/websocket";
 
 const useChat = (userEmail, onMessageReceive) => {
   const stompClient = useRef(null);
@@ -10,23 +10,21 @@ const useChat = (userEmail, onMessageReceive) => {
   useEffect(() => {
     if (!userEmail) return;
 
-    console.log("🌐 Connecting to native WebSocket:", SOCKET_URL);
+    console.log("🌐 Connecting to WebSocket:", SOCKET_URL);
 
-    // Create native WebSocket
-    const socket = new WebSocket(SOCKET_URL);
-
-    // Wrap with STOMP
+    const socket = new WebSocket(SOCKET_URL); // Or SockJS if using fallback
     const client = Stomp.over(socket);
     stompClient.current = client;
 
+    // ✅ Send userId as part of STOMP headers
     client.connect(
-      {}, // No auth headers needed
+      { userId: userEmail }, // this is critical!
       () => {
-        console.log("✅ WebSocket connected");
+        console.log("✅ WebSocket connected as:", userEmail);
         setConnected(true);
 
-        // Subscribe to private queue for the user
-        client.subscribe(`/user/${userEmail}/queue/messages`, (message) => {
+        // ✅ Subscribe to personal message queue
+        client.subscribe(`/user/queue/messages`, (message) => {
           const payload = JSON.parse(message.body);
           console.log("📥 Received:", payload);
           onMessageReceive(payload);
