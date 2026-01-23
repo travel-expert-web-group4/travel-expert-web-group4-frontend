@@ -377,7 +377,7 @@ const PackageDetails = () => {
         <p><strong>Destination:</strong> {destination}</p>
         <p><strong>Description:</strong> {description}</p>
         <p><strong>Dates:</strong> {startDate} → {endDate}</p>
-        <p><strong>Base Rating:</strong> ⭐ {rating}</p>
+        <p><strong>Base Rating:</strong> ⭐ {rating ? rating : "N/A"}</p>
         <p><strong>Customer Avg:</strong> ⭐ {averageRating} ({reviews.length} reviews)</p>
         <p><strong>Price:</strong> ${basePrice}</p>
         <p><strong>Commission:</strong> ${agencyCommission}</p>
