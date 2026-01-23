@@ -137,7 +137,7 @@ const MyBookings = () => {
       `Trip: ${new Date(b.tripStart).toLocaleDateString()} - ${new Date(b.tripEnd).toLocaleDateString()}`,
       `Travelers: ${b.travelerCount}`,
       `Trip Type: ${getTripTypeLabel(b.tripTypeId)}`,
-      `Agent: ${agentName}`,
+      // `Agent: ${agentName}`,
       `Base Price: $${b.basePrice}`,
       `Agency Commission: $${b.agencyCommission}`,
       `Total: $${total.toFixed(2)}`
@@ -218,7 +218,7 @@ const MyBookings = () => {
               <p><strong>Package:</strong> {b.name}</p>
               <p><strong>Destination:</strong> {b.destination}</p>
               <p><strong>Trip:</strong> {new Date(b.tripStart).toLocaleDateString()} → {new Date(b.tripEnd).toLocaleDateString()}</p>
-              <p><strong>Agent:</strong> {agentName}</p>
+              {/* <p><strong>Agent:</strong> {agentName}</p> */}
               <p><strong>Total Paid:</strong> ${total.toFixed(2)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => generateInvoice(b)} className="bg-green-600 text-white px-3 py-1 rounded">Invoice</button>

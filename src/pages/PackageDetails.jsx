@@ -1,9 +1,11 @@
+
+
+
 // import React, { useState, useEffect, useRef } from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
-// import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+// import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 // import { motion } from "framer-motion";
 // import { useAuth } from "../contexts/AuthContext";
-// import "../styles/PackageDetails.css";
 // import { getReview, reviewPackage } from "../api/package";
 
 // const containerStyle = {
@@ -11,7 +13,8 @@
 //   height: "400px"
 // };
 
-// // Utility: Convert timestamp to relative time
+// const libraries = ["places"];
+
 // const getRelativeTime = (timestamp) => {
 //   const now = new Date();
 //   const past = new Date(timestamp);
@@ -33,131 +36,134 @@
 //       return `${count} ${u.label}${count !== 1 ? 's' : ''} ago`;
 //     }
 //   }
-
 //   return 'just now';
 // };
-
 
 // const PackageDetails = () => {
 //   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 //   const { state } = useLocation();
 //   const { user } = useAuth();
 //   const navigate = useNavigate();
-  
+
 //   const {
-//     packageId,
-//     name,
-//     description,
-//     destination,
-//     imageUrl,
-//     rating,
-//     basePrice,
-//     agencyCommission,
-//     startDate,
-//     endDate,
-//     lat,
-//     lng
+//     packageId, name, description, destination,
+//     imageUrl, rating, basePrice, agencyCommission,
+//     startDate, endDate, lat, lng
 //   } = state;
+
+//   const parsedLat = parseFloat(lat);
+//   const parsedLng = parseFloat(lng);
+//   const isValidLatLng = !isNaN(parsedLat) && !isNaN(parsedLng);
+
+//   const { isLoaded } = useJsApiLoader({
+//     googleMapsApiKey: apiKey,
+//     libraries
+//   });
 
 //   const [reviewSort, setReviewSort] = useState("highest");
 //   const [showAllReviews, setShowAllReviews] = useState(false);
 //   const reviewSectionRef = useRef(null);
-
 //   const [reviews, setReviews] = useState([]);
+//   const [newReview, setNewReview] = useState({ rating: 5, review: "" });
 
 //   const fetchReviews = async () => {
 //     const reviewData = await getReview(packageId);
-//     if (reviewData != null) {
-//       setReviews(reviewData);
-//     }
+//     if (reviewData) setReviews(reviewData);
 //   };
 
-//   useEffect(()=>{
-//     fetchReviews();
-//   },[])
+//   useEffect(() => { fetchReviews(); }, []);
 
-//   const [newReview, setNewReview] = useState({
-//     rating: 5,
-//     review: ""
-//   });
+//   useEffect(() => {
+//     const storedReview = sessionStorage.getItem("pendingReview");
+//     if (storedReview && user?.sub) {
+//       const { review, rating, packageId: storedPackageId } = JSON.parse(storedReview);
+//       if (storedPackageId === packageId) {
+//         setNewReview({ rating, review });
+//         reviewPackage({ rating, review }, packageId, user.sub).then(() => {
+//           fetchReviews();
+//           setNewReview({ rating: 5, review: "" });
+//           sessionStorage.removeItem("pendingReview");
+//         });
+//       }
+//     }
+//   }, [user?.sub]);
 
-//   const averageRating = reviews.length > 0
+//   const averageRating = reviews.length
 //     ? (reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length).toFixed(1)
 //     : "No reviews yet";
 
 //   const handleInputChange = (e) => {
-//     setNewReview({
-//       ...newReview,
-//       [e.target.name]: e.target.value
-//     });
+//     setNewReview({ ...newReview, [e.target.name]: e.target.value });
 //   };
 
 //   const handleSubmitReview = async (e) => {
 //     e.preventDefault();
+//     if (!user?.sub) {
+//       sessionStorage.setItem("pendingReview", JSON.stringify({
+//         review: newReview.review,
+//         rating: Number(newReview.rating),
+//         packageId
+//       }));
+//       navigate("/login");
+//       return;
+//     }
 //     if (newReview.review) {
-//       // const customer = JSON.parse(localStorage.getItem("customer"));
-//       await reviewPackage(newReview,packageId,user.sub);
+//       await reviewPackage(newReview, packageId, user.sub);
 //       fetchReviews();
-//       // localStorage.setItem(`reviews-${packageId}`, JSON.stringify(updated));
-//       setNewReview({  rating: 5, review: "" });
+//       setNewReview({ rating: 5, review: "" });
 //     }
 //   };
 
+//   const handleBookNow = () => {
+//     const bookingData = {
+//       packageId, name, basePrice, agencyCommission,
+//       destination, startDate, endDate
+//     };
+//     sessionStorage.setItem("bookingData", JSON.stringify(bookingData));
+//     navigate(`/packages/${packageId}/book`, { state: bookingData });
+//   };
+
 //   return (
-//     <motion.div
-//       className="package-details"
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       transition={{ duration: 0.5 }}
-//     >
-//       <h1>{name}</h1>
-//       <img src={imageUrl} alt={name} />
+//     <motion.div className="px-4 py-8 max-w-5xl mx-auto" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+//       <h1 className="text-3xl font-bold mb-4">{name}</h1>
+//       <img src={imageUrl} alt={name} className="w-full h-72 object-cover rounded-lg mb-6" />
 
-//       <p><strong>Destination:</strong> {destination}</p>
-//       <p><strong>Description:</strong> {description}</p>
-//       <p><strong>Start Date:</strong> {startDate}</p>
-//       <p><strong>End Date:</strong> {endDate}</p>
-//       <p><strong>Base Rating:</strong> ⭐ {rating}</p>
-//       <p><strong>Customer Avg Rating:</strong> ⭐ {averageRating} ({reviews.length} reviews)</p>
-//       <p><strong>Price:</strong> ${basePrice}</p>
-//       <p><strong>Agency Commission:</strong> ${agencyCommission}</p>
-//       <p><strong>Total:</strong> ${Number(basePrice) + Number(agencyCommission)}</p>
+//       <div className="space-y-2">
+//         <p><strong>Destination:</strong> {destination}</p>
+//         <p><strong>Description:</strong> {description}</p>
+//         <p><strong>Dates:</strong> {startDate} → {endDate}</p>
+//         <p><strong>Base Rating:</strong> ⭐ {rating}</p>
+//         <p><strong>Customer Avg:</strong> ⭐ {averageRating} ({reviews.length} reviews)</p>
+//         <p><strong>Price:</strong> ${basePrice}</p>
+//         <p><strong>Commission:</strong> ${agencyCommission}</p>
+//         <p><strong>Total:</strong> ${Number(basePrice) + Number(agencyCommission)}</p>
+//       </div>
 
-//       <button
-//         onClick={() => navigate(`/packages/${packageId}/book`, { state })}
-//         style={{
-//           padding: "0.75rem 1.5rem",
-//           backgroundColor: "#28a745",
-//           color: "#fff",
-//           border: "none",
-//           borderRadius: "5px",
-//           fontWeight: "bold",
-//           marginTop: "1rem",
-//           cursor: "pointer"
-//         }}
-//       >
-//         Book Now
-//       </button>
+//       <button onClick={handleBookNow} className="mt-6 bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700">Book Now</button>
 
-//       <h3 style={{ marginTop: "2rem" }}>Location on Map:</h3>
-//       <LoadScript googleMapsApiKey={apiKey}>
-//         <GoogleMap mapContainerStyle={containerStyle} center={{ lat, lng }} zoom={10}>
-//           <Marker position={{ lat, lng }} />
-//         </GoogleMap>
-//       </LoadScript>
+//       <h3 className="text-xl font-semibold mt-10 mb-2">Location on Map:</h3>
+//       <div className="rounded overflow-hidden shadow mb-8 min-h-[400px] bg-gray-100 flex items-center justify-center">
+//         {isLoaded && isValidLatLng ? (
+//           <GoogleMap
+//             mapContainerStyle={containerStyle}
+//             center={{ lat: parsedLat, lng: parsedLng }}
+//             zoom={10}
+//           >
+//             <Marker position={{ lat: parsedLat, lng: parsedLng }} />
+//           </GoogleMap>
+//         ) : (
+//           <p className="text-gray-600 italic text-center p-4">
+//             🗺️ Map unavailable: Missing or invalid coordinates.
+//           </p>
+//         )}
+//       </div>
 
-//       <hr />
+//       <hr className="my-6" />
 
-//       <h2>Customer Reviews</h2>
-
-//       <div style={{ marginBottom: "1rem" }}>
-//         <label htmlFor="sortReviews"><strong>Sort Reviews:</strong></label>
-//         <select
-//           id="sortReviews"
-//           value={reviewSort}
-//           onChange={(e) => setReviewSort(e.target.value)}
-//           style={{ marginLeft: "0.5rem", padding: "0.3rem" }}
-//         >
+//       <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
+//       <div className="mb-4">
+//         <label className="font-semibold mr-2">Sort Reviews:</label>
+//         <select className="border px-2 py-1" value={reviewSort} onChange={(e) => setReviewSort(e.target.value)}>
 //           <option value="highest">Highest Rating</option>
 //           <option value="lowest">Lowest Rating</option>
 //           <option value="newest">Newest First</option>
@@ -166,7 +172,7 @@
 //         </select>
 //       </div>
 
-//       <ul ref={reviewSectionRef}>
+//       <ul ref={reviewSectionRef} className="space-y-4">
 //         {reviews
 //           .filter(r => {
 //             if (reviewSort === "five-star") return r.rating === 5;
@@ -181,46 +187,26 @@
 //           })
 //           .slice(0, showAllReviews ? undefined : 3)
 //           .map((r, i) => (
-//             <li key={i}>
-//               <strong>***</strong> - ⭐ {r.rating}<br />
-//               <em>{r.review}</em><br />
-//               <small style={{ color: "#666" }}>
-//                 {r.timestamp ? getRelativeTime(r.timestamp) : ""}
-//               </small>
+//             <li key={i} className="border p-3 rounded bg-gray-50">
+//               <div className="text-sm text-gray-600">⭐ {r.rating}</div>
+//               <p className="text-gray-800 italic">"{r.review}"</p>
+//               <small className="text-xs text-gray-400">{r.timestamp ? getRelativeTime(r.timestamp) : ""}</small>
 //             </li>
 //           ))}
 //       </ul>
 
 //       {reviews.length > 3 && (
 //         <button
-//           onClick={() => {
-//             if (showAllReviews && reviewSectionRef.current) {
-//               reviewSectionRef.current.scrollIntoView({ behavior: 'smooth' });
-//             }
-//             setShowAllReviews(prev => !prev);
-//           }}
-//           style={{
-//             marginTop: "1rem",
-//             backgroundColor: "#eee",
-//             color: "#333",
-//             border: "1px solid #ccc",
-//             padding: "0.5rem 1rem",
-//             borderRadius: "5px",
-//             fontWeight: "600",
-//             cursor: "pointer"
-//           }}
+//           onClick={() => setShowAllReviews(prev => !prev)}
+//           className="mt-4 bg-gray-100 border px-4 py-2 rounded hover:bg-gray-200"
 //         >
 //           {showAllReviews ? "Show Less" : "Show All Reviews"}
 //         </button>
 //       )}
 
-//       <h3>Leave a Review</h3>
-//       <form onSubmit={handleSubmitReview}>
-//         <select
-//           name="rating"
-//           value={newReview.rating}
-//           onChange={handleInputChange}
-//         >
+//       <h3 className="text-xl font-semibold mt-10">Leave a Review</h3>
+//       <form onSubmit={handleSubmitReview} className="mt-4 space-y-4">
+//         <select name="rating" value={newReview.rating} onChange={handleInputChange} className="border p-2 rounded w-full">
 //           <option value={5}>5 - Excellent</option>
 //           <option value={4}>4 - Great</option>
 //           <option value={3}>3 - Good</option>
@@ -234,16 +220,15 @@
 //           onChange={handleInputChange}
 //           required
 //           rows="4"
+//           className="w-full border rounded p-2"
 //         />
-//         <button type="submit">Submit Review</button>
+//         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Review</button>
 //       </form>
 //     </motion.div>
 //   );
 // };
 
 // export default PackageDetails;
-
-
 
 
 import React, { useState, useEffect, useRef } from "react";
@@ -305,6 +290,7 @@ const PackageDetails = () => {
     libraries
   });
 
+  const [geoCoords, setGeoCoords] = useState(null);
   const [reviewSort, setReviewSort] = useState("highest");
   const [showAllReviews, setShowAllReviews] = useState(false);
   const reviewSectionRef = useRef(null);
@@ -332,6 +318,20 @@ const PackageDetails = () => {
       }
     }
   }, [user?.sub]);
+
+  useEffect(() => {
+    if (!isValidLatLng && isLoaded && destination) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address: destination }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const location = results[0].geometry.location;
+          setGeoCoords({ lat: location.lat(), lng: location.lng() });
+        } else {
+          console.warn("Geocoding failed:", status);
+        }
+      });
+    }
+  }, [isLoaded, destination, isValidLatLng]);
 
   const averageRating = reviews.length
     ? (reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length).toFixed(1)
@@ -388,17 +388,17 @@ const PackageDetails = () => {
 
       <h3 className="text-xl font-semibold mt-10 mb-2">Location on Map:</h3>
       <div className="rounded overflow-hidden shadow mb-8 min-h-[400px] bg-gray-100 flex items-center justify-center">
-        {isLoaded && isValidLatLng ? (
+        {isLoaded && (isValidLatLng || geoCoords) ? (
           <GoogleMap
             mapContainerStyle={containerStyle}
-            center={{ lat: parsedLat, lng: parsedLng }}
+            center={isValidLatLng ? { lat: parsedLat, lng: parsedLng } : geoCoords}
             zoom={10}
           >
-            <Marker position={{ lat: parsedLat, lng: parsedLng }} />
+            <Marker position={isValidLatLng ? { lat: parsedLat, lng: parsedLng } : geoCoords} />
           </GoogleMap>
         ) : (
           <p className="text-gray-600 italic text-center p-4">
-            🗺️ Map unavailable: Missing or invalid coordinates.
+            🗺️ Map unavailable: Location could not be determined.
           </p>
         )}
       </div>
@@ -474,3 +474,4 @@ const PackageDetails = () => {
 };
 
 export default PackageDetails;
+

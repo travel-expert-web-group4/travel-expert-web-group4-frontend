@@ -332,7 +332,7 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="h-8 sm:h-10" />
           <div className="flex flex-col leading-tight">
-            <span className="text-xl font-bold tracking-wide">Travel Experts</span>
+            <span className="text-xl font-bold tracking-wide">Travel Tales</span>
             <span className="text-xs text-gray-300 animate-fade-in">
               Explore. Dream. Discover.
             </span>
